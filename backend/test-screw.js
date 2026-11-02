@@ -1,0 +1,1 @@
+const response = await fetch('http://localhost:5000/api/chat', {method:'POST', headers:{'Content-Type':'application/json','Origin':'http://localhost:3000'}, body:JSON.stringify({messages:[{role:'user', content:'Show me all screw pumps'}]})); const data = await response.json(); console.log(JSON.stringify(data, null, 2));
