@@ -37,7 +37,7 @@ export default function Logo({ tone = "dark", className }: LogoProps) {
           />
           <path
             d="M12 9.2c1.1 1.4 2.6 3 2.6 4.8a2.6 2.6 0 1 1-5.2 0c0-1.8 1.5-3.4 2.6-4.8Z"
-            fill="#F5A623"
+            fill="#FFD100"
           />
         </svg>
       </span>

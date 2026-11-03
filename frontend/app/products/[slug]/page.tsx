@@ -523,7 +523,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
                   </div>
                   <Link
                     href="/contact"
-                    className="flex-shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg bg-accent text-white font-semibold transition-colors hover:bg-accent-dark"
+                    className="flex-shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg bg-accent text-primary-deep font-semibold transition-colors hover:bg-accent-dark"
                   >
                     Request a Quote
                     <ArrowUpRight className="size-4" aria-hidden="true" />

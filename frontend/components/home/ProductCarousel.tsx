@@ -142,7 +142,7 @@ export default function ProductCarousel() {
                 href={productRoutes[product.name]}
                 className={cn(
                   "flex-shrink-0 relative flex flex-col overflow-hidden rounded-[16px] border border-line bg-white shadow-sm transition-all duration-300",
-                  "hover:-translate-y-1 hover:border-accent hover:shadow-[0_12px_30px_rgba(245,166,35,0.25)]"
+                  "hover:-translate-y-1 hover:border-accent hover:shadow-[0_12px_30px_rgba(255,209,0,0.25)]"
                 )}
                 style={{ width: `${CARD_WIDTH}px` }}
               >

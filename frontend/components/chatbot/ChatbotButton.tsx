@@ -22,8 +22,8 @@ export default function ChatbotButton({
     <button
       onClick={onToggle}
       className={cn(
-        "w-14 h-14 sm:w-16 sm:h-16 rounded-full shadow-[0_8px_30px_rgba(245,166,35,0.4)] transition-all duration-300 flex items-center justify-center",
-        "bg-accent text-white hover:bg-accent-dark hover:shadow-[0_12px_40px_rgba(245,166,35,0.5)]",
+        "w-14 h-14 sm:w-16 sm:h-16 rounded-full shadow-[0_8px_30px_rgba(39,116,174,0.4)] transition-all duration-300 flex items-center justify-center",
+        "bg-primary text-white hover:bg-primary-dark hover:shadow-[0_12px_40px_rgba(39,116,174,0.5)]",
         isOpen && "scale-95",
         isMinimized && "animate-pulse"
       )}

@@ -33,9 +33,9 @@ export default function ChatActionButton({ type, label, href, onClick }: ChatAct
       onClick={handleClick}
       className={cn(
         "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200",
-        type === "product" && "bg-accent text-white hover:bg-accent-dark shadow-sm hover:shadow-md",
+        type === "product" && "bg-primary text-white hover:bg-primary-dark shadow-sm hover:shadow-md",
         type === "contact" && "bg-primary text-white hover:bg-primary-dark border border-primary",
-        type === "quote" && "bg-accent text-white hover:bg-accent-dark shadow-sm hover:shadow-md"
+        type === "quote" && "bg-primary text-white hover:bg-primary-dark shadow-sm hover:shadow-md"
       )}
     >
       {label}

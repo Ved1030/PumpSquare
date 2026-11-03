@@ -26,11 +26,11 @@ export default function IndustriesHero({ title, description, breadcrumb }: Indus
 
       <div
         aria-hidden="true"
-        className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(6,18,34,0.9)_0%,rgba(6,18,34,0.72)_20%,rgba(6,18,34,0.45)_38%,rgba(6,18,34,0.18)_52%,rgba(6,18,34,0)_64%)] lg:block"
+        className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(0,59,92,0.9)_0%,rgba(0,59,92,0.72)_20%,rgba(0,59,92,0.45)_38%,rgba(0,59,92,0.18)_52%,rgba(0,59,92,0)_64%)] lg:block"
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[linear-gradient(115deg,rgba(6,18,34,0.95)_0%,rgba(6,18,34,0.86)_38%,rgba(6,18,34,0.62)_72%,rgba(6,18,34,0.45)_100%)] lg:hidden"
+        className="absolute inset-0 bg-[linear-gradient(115deg,rgba(0,59,92,0.95)_0%,rgba(0,59,92,0.86)_38%,rgba(0,59,92,0.62)_72%,rgba(0,59,92,0.45)_100%)] lg:hidden"
       />
 
       <div className="relative z-10 w-full">
@@ -55,7 +55,7 @@ export default function IndustriesHero({ title, description, breadcrumb }: Indus
               </ol>
             </nav>
 
-            <h1 id="industries-heading" className="animate-rise mt-5 font-display text-4xl font-extrabold leading-[1.14] tracking-tight text-white [animation-delay:100ms] [text-shadow:0_2px_18px_rgba(4,12,26,0.5)] sm:mt-6 sm:text-5xl lg:text-6xl lg:leading-[1.1] xl:text-[4rem] xl:leading-[1.08]">
+            <h1 id="industries-heading" className="animate-rise mt-5 font-display text-4xl font-extrabold leading-[1.14] tracking-tight text-white [animation-delay:100ms] [text-shadow:0_2px_18px_rgba(0,59,92,0.5)] sm:mt-6 sm:text-5xl lg:text-6xl lg:leading-[1.1] xl:text-[4rem] xl:leading-[1.08]">
               <span className="block">{firstLine}</span>
               <span className="block">
                 <span className="inline-block border-b-[3px] border-accent pb-1.5">
@@ -65,7 +65,7 @@ export default function IndustriesHero({ title, description, breadcrumb }: Indus
             </h1>
 
             {description ? (
-              <p className="animate-rise mt-5 max-w-[540px] text-base font-medium leading-relaxed text-silver [animation-delay:200ms] [text-shadow:0_1px_12px_rgba(4,12,26,0.55)] sm:mt-6 sm:text-lg lg:text-xl">
+              <p className="animate-rise mt-5 max-w-[540px] text-base font-medium leading-relaxed text-silver [animation-delay:200ms] [text-shadow:0_1px_12px_rgba(0,59,92,0.55)] sm:mt-6 sm:text-lg lg:text-xl">
                 {description}
               </p>
             ) : null}

@@ -26,14 +26,14 @@ export default function PageHero({ title, description, breadcrumb, backgroundIma
           </div>
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,29,53,0.88)_0%,rgba(8,29,53,0.62)_45%,rgba(8,29,53,0.12)_100%)]"
+            className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,59,92,0.88)_0%,rgba(0,59,92,0.62)_45%,rgba(0,59,92,0.12)_100%)]"
           />
         </>
       ) : (
         <>
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-[linear-gradient(120deg,#0f2440_0%,#183b63_55%,#315c8c_100%)] opacity-95"
+            className="absolute inset-0 bg-[linear-gradient(120deg,#003B5C_0%,#2774AE_55%,#8BB8EE_100%)] opacity-95"
           />
           <div
             aria-hidden="true"

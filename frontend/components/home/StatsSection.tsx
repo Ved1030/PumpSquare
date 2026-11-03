@@ -139,7 +139,7 @@ return (
         <div
           ref={ref}
           className={cn(
-            "relative -mt-16 overflow-hidden rounded-[22px] bg-white shadow-[0_16px_40px_rgba(15,36,64,0.1)]",
+            "relative -mt-16 overflow-hidden rounded-[22px] bg-white shadow-[0_16px_40px_rgba(0,59,92,0.1)]",
             "transition-opacity duration-700 ease-out",
             active ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}

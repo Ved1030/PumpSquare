@@ -26,7 +26,7 @@ export default function IndustriesSection() {
               delay={(index % 4) * 80}
               className="h-full"
             >
-              <article className="group relative aspect-[3/2] overflow-hidden rounded-xl border border-line shadow-sm transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/10">
+              <article className="group relative aspect-[3/2] overflow-hidden rounded-xl border border-line bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-lg hover:shadow-primary/10">
                 <Image
                   src={industry.image}
                   alt={`${industry.name} industry`}
@@ -36,7 +36,7 @@ export default function IndustriesSection() {
                 />
                 <div
                   aria-hidden="true"
-                  className="absolute inset-0 bg-[linear-gradient(to_top,rgba(15,36,64,0.92)_0%,rgba(24,59,99,0.3)_55%,transparent_100%)]"
+                  className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,59,92,0.92)_0%,rgba(0,85,135,0.3)_55%,transparent_100%)]"
                 />
                 <span
                   aria-hidden="true"
@@ -53,7 +53,7 @@ export default function IndustriesSection() {
         <Reveal className="mt-10 text-center">
           <Link
             href="/industries"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-steel transition-colors hover:text-accent-dark"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-accent"
           >
             View all industries
             <ArrowRight aria-hidden="true" className="size-4" />

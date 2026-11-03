@@ -4,20 +4,20 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-display: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-  --color-primary: #183b63;
-  --color-primary-dark: #132e4f;
-  --color-primary-deep: #0f2440;
-  --color-primary-soft: #edf2f8;
-  --color-steel: #315c8c;
-  --color-steel-soft: #d9e3f0;
-  --color-accent: #f5a623;
-  --color-accent-dark: #d9921a;
-  --color-accent-soft: #fdf1de;
-  --color-silver: #bac7d7;
-  --color-surface: #f5f7fa;
-  --color-ink: #172b45;
-  --color-muted: #64748b;
-  --color-line: #e2e8f0;
+  --color-primary: #2774AE;
+  --color-primary-dark: #005587;
+  --color-primary-deep: #003B5C;
+  --color-primary-soft: #DAEBFE;
+  --color-steel: #8BB8EE;
+  --color-steel-soft: #DAEBFE;
+  --color-accent: #FFD100;
+  --color-accent-dark: #FFB81C;
+  --color-accent-soft: #FFF8E1;
+  --color-silver: #999999;
+  --color-surface: #FFFFFF;
+  --color-ink: #333333;
+  --color-muted: #666666;
+  --color-line: #E5E5E5;
 }
 
 @layer base {

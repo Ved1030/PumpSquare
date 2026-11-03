@@ -223,7 +223,7 @@ export default function ContactForm() {
       {status.type === "not-configured" ? (
         <p
           role="status"
-          className="mt-6 flex items-start gap-2 rounded-md border border-steel-soft bg-primary-soft px-4 py-3 text-sm font-medium text-primary-dark"
+          className="mt-6 flex items-start gap-2 rounded-md border border-steel bg-primary-soft px-4 py-3 text-sm font-medium text-primary-dark"
         >
           <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
           <span>
@@ -260,7 +260,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-md bg-accent px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-md bg-accent px-6 py-3.5 text-sm font-semibold text-primary-deep shadow-sm transition-colors hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
       >
         {submitting ? "Sending..." : "Submit"}
         <Send aria-hidden="true" className="size-4" />

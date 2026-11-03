@@ -69,8 +69,8 @@ export default function Header() {
       className={cn(
         "fixed inset-x-0 top-0 z-[9999] w-full transition-[background-color,box-shadow,backdrop-filter] duration-300 ease-out",
         transparent
-          ? "bg-transparent [text-shadow:0_1px_10px_rgba(4,12,26,0.55)]"
-          : "bg-primary shadow-[0_10px_30px_rgba(15,36,64,0.35)] backdrop-blur-md [text-shadow:none]",
+          ? "bg-transparent [text-shadow:0_1px_10px_rgba(0,59,92,0.55)]"
+          : "bg-primary-deep shadow-[0_10px_30px_rgba(0,59,92,0.35)] backdrop-blur-md [text-shadow:none]",
       )}
     >
       <div className="relative z-[9999] mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
@@ -127,7 +127,7 @@ export default function Header() {
                               rel="noopener noreferrer"
                               role="menuitem"
                               onClick={() => setProductsOpen(false)}
-                              className="block rounded-md px-3 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft hover:text-primary-dark"
+                              className="block rounded-md px-3 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft hover:text-primary-deep"
                             >
                               {item.label}
                             </a>
@@ -155,7 +155,7 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <Link
             href="/contact"
-            className="hidden items-center justify-center rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-accent-dark lg:inline-flex"
+            className="hidden items-center justify-center rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-primary-deep shadow-sm transition-colors hover:bg-accent-dark lg:inline-flex"
           >
             Request a Quote
           </Link>

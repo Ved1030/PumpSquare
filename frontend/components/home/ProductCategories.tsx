@@ -50,7 +50,7 @@ export default function ProductCategories() {
                   </p>
                   <Link
                     href="/contact"
-                    className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-steel transition-colors hover:text-accent-dark"
+                    className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-accent"
                   >
                     Request details
                     <ArrowRight

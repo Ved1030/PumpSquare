@@ -59,7 +59,7 @@ export default function ContactPage() {
                   href="https://www.google.com/maps/search/?api=1&query=Vithal+Udyog+Nagar%2C+GIDC+Estate%2C+Anand%2C+Gujarat+388121%2C+India"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-steel transition-colors hover:text-accent-dark"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-accent"
                 >
                   Get Directions
                   <ArrowUpRight aria-hidden="true" className="size-4" />

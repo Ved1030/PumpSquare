@@ -96,7 +96,7 @@ export default function MobileNavigation({
         <Link
           href="/contact"
           onClick={onClose}
-          className="mt-4 flex w-full items-center justify-center rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-dark"
+          className="mt-4 flex w-full items-center justify-center rounded-md bg-accent px-6 py-3 text-sm font-semibold text-primary-deep transition-colors hover:bg-accent-dark"
         >
           Request a Quote
         </Link>

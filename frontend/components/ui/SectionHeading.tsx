@@ -40,7 +40,7 @@ export default function SectionHeading({
           <p
             className={cn(
               "text-xs font-semibold uppercase tracking-[0.2em]",
-              isLight ? "text-silver" : "text-steel",
+              isLight ? "text-silver" : "text-primary",
             )}
           >
             {eyebrow}
@@ -50,7 +50,7 @@ export default function SectionHeading({
       <h2
         className={cn(
           "mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl",
-          isLight ? "text-white" : "text-ink",
+          isLight ? "text-white" : "text-primary-deep",
         )}
       >
         {title}
@@ -73,7 +73,7 @@ export function ReadMoreLink({ href }: { href: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 text-sm font-semibold text-steel transition-colors hover:text-accent-dark"
+      className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-accent"
     >
       Read More
       <span aria-hidden="true">→</span>

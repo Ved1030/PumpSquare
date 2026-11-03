@@ -65,7 +65,7 @@ export default function ChatInput({ onSend, disabled = false, placeholder = "Typ
             "flex-shrink-0 p-2.5 rounded-xl transition-colors",
             disabled
               ? "bg-line text-muted/50 cursor-not-allowed"
-              : "bg-accent text-white hover:bg-accent-dark"
+              : "bg-primary text-white hover:bg-primary-dark"
           )}
           aria-label="Send message"
         >

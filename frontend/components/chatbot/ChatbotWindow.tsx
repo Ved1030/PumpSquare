@@ -94,7 +94,7 @@ export default function ChatbotWindow({ isOpen, onClose, onMinimize, apiUrl }: C
     <div
       className={cn(
         "fixed bottom-6 right-6 z-[10000] w-full max-w-[420px] h-[500px] sm:h-[550px] lg:h-[600px] max-h-[calc(100dvh-100px)]",
-        "bg-white rounded-2xl shadow-[0_25px_50px_rgba(15,36,64,0.4)] border border-line overflow-hidden flex flex-col animate-rise"
+        "bg-white rounded-2xl shadow-[0_25px_50px_rgba(0,59,92,0.4)] border border-line overflow-hidden flex flex-col animate-rise"
       )}
       role="dialog"
       aria-label="Pumpsquare AI Assistant"
