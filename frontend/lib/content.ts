@@ -210,6 +210,8 @@ export const qualityParagraphs = [
   "Constant monitoring of the chemical and physical properties of our casting materials and welded constructions as well as controls perfromed at all stages of production to ensure an uncompromising quality of products. All the pumps are exposed to running tests and must meet a minimum level of performance before final approval by our test departments. Special Tests, as required by our customers can also be performed.",
 ] as const;
 
+export const certificateLinkPhrase = "Click here to view certificate of Registration";
+
 export const certificationParagraphs = [
   "We at Pumpsquare are committed to continue improvements both at the manufacturing level as well the management level.",
   "Pumpsquare Systems LLP, maintains and complies with its ISO 9001:2008 certificate for manufacturing and supplying of Positive Displacement Pumps. Click here to view certificate of Registration. Certificate of registration is uncontrolled if copied.",

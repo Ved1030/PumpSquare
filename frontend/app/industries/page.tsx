@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Reveal from "@/components/ui/Reveal";
 import ButtonLink from "@/components/ui/ButtonLink";
-import IndustriesHero from "@/components/industries/IndustriesHero";
+import PageHero from "@/components/ui/PageHero";
 import { aboutApplications, industries } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -14,17 +14,27 @@ export const metadata: Metadata = {
 export default function IndustriesPage() {
   return (
     <>
-      <IndustriesHero
+      <PageHero
         title="Industries We Serve"
         description="Pumpsquare pumps are utilized throughout the world in a variety of process and industrial applications."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Industries" }]}
+        backgroundImage="/images/Illuminated Refinery at Blue Hour.png"
+        imageAlt="Illuminated refinery towers at blue hour"
+        imagePosition="object-[45%_58%] lg:object-[36%_center]"
+        imageClassName="scale-[0.7] md:scale-[0.8] lg:scale-100"
+        imageOverlay={{
+          desktop:
+            "linear-gradient(90deg,rgba(0,59,92,0.88)_0%,rgba(0,59,92,0.68)_42%,rgba(0,59,92,0.18)_100%)",
+          mobile:
+            "linear-gradient(160deg,rgba(0,59,92,0.86)_0%,rgba(0,59,92,0.7)_55%,rgba(0,59,92,0.38)_100%)",
+        }}
       />
 
       <section id="industry-applications" aria-label="Industry applications" className="bg-surface py-20 sm:py-24">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal className="mx-auto max-w-[900px]">
             <span aria-hidden="true" className="mb-6 block mx-auto h-1 w-10 rounded-full bg-accent" />
-            <p className="text-center text-base leading-relaxed text-steel sm:text-lg">
+            <p className="mx-auto max-w-3xl text-center text-lg font-normal leading-[1.7] text-ink">
               {aboutApplications}
             </p>
           </Reveal>

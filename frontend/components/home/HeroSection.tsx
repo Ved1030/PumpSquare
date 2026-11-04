@@ -6,14 +6,14 @@ const HERO_IMAGE = "/images/Blue Industrial Pump at Sunset Refinery.png";
 
 export default function HeroSection() {
   return (
-    <section className="relative isolate flex h-svh min-h-[650px] max-h-[850px] w-full flex-col justify-center overflow-hidden bg-primary-deep">
+    <section className="relative isolate flex h-svh max-h-[850px] min-h-[650px] w-full max-w-none flex-col justify-center overflow-hidden bg-primary-deep">
       <Image
         src={HERO_IMAGE}
         alt="Blue industrial pump at a refinery at sunset"
         fill
         priority
         sizes="100vw"
-        className="object-cover object-[90%_55%] lg:object-[85%_55%] scale-[0.95] lg:scale-[0.97]"
+        className="object-cover object-[90%_55%] lg:object-[85%_55%]"
       />
 
       <div
@@ -28,7 +28,7 @@ export default function HeroSection() {
       <div className="relative z-10 w-full">
         <div className="w-full px-4 pb-10 pt-24 sm:px-6 sm:pt-24 lg:px-8 lg:pl-[7.5%] lg:pr-10 lg:pt-20">
           <div className="max-w-[700px]">
-            <p className="animate-rise inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-primary sm:text-xs">
+            <p className="animate-rise inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-accent sm:text-xs">
               <span aria-hidden="true" className="h-px w-8 bg-accent sm:w-10" />
               WE&rsquo;RE PUMPSQUARE
             </p>
@@ -42,7 +42,7 @@ export default function HeroSection() {
               </span>
             </h1>
 
-            <p className="animate-rise mt-5 max-w-[540px] text-sm font-medium leading-relaxed text-silver [animation-delay:200ms] [text-shadow:0_1px_12px_rgba(0,59,92,0.55)] sm:mt-6 sm:text-base lg:text-lg">
+            <p className="animate-rise mt-5 max-w-[540px] text-lg font-normal leading-[1.6] text-primary-soft [animation-delay:200ms] [text-shadow:0_1px_12px_rgba(0,59,92,0.55)] sm:mt-6">
               PUMPSQUARE offers a wide range of pumping solutions
             </p>
 
@@ -73,7 +73,7 @@ export default function HeroSection() {
       <a
         href="#company-statistics"
         aria-label="Scroll to company statistics"
-        className="absolute bottom-6 left-1/2 z-10 hidden -translate-x-1/2 text-silver transition-colors hover:text-accent lg:block"
+        className="absolute bottom-6 left-1/2 z-10 hidden -translate-x-1/2 text-primary-soft transition-colors hover:text-accent lg:block"
       >
         <ChevronDown aria-hidden="true" className="animate-drift size-6" />
       </a>

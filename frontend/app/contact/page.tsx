@@ -1,9 +1,34 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ClipboardList, MessagesSquare, Settings2 } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import Reveal from "@/components/ui/Reveal";
 import ContactInformation from "@/components/contact/ContactInformation";
 import ContactForm from "@/components/contact/ContactForm";
+
+const PROCESS_STEPS = [
+  {
+    number: "01",
+    icon: ClipboardList,
+    title: "We Review Your Requirement",
+    description:
+      "Our team reads the details you share — application, fluid, flow rate and pressure — so we understand what you need.",
+  },
+  {
+    number: "02",
+    icon: MessagesSquare,
+    title: "We Get in Touch",
+    description:
+      "A member of our team contacts you to discuss your application and clarify any details before proposing a solution.",
+  },
+  {
+    number: "03",
+    icon: Settings2,
+    title: "We Recommend a Pump",
+    description:
+      "We suggest the most suitable pump and configuration for your duty, along with a quotation where required.",
+  },
+] as const;
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -18,6 +43,16 @@ export default function ContactPage() {
         title="Contact Us"
         description="Tell us about your pump requirement — our team at Vithal Udyog Nagar will get back to you."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Contact Us" }]}
+        backgroundImage="/images/Blueprints and Precision in the Factory Office.png"
+        imageAlt="Engineering blueprints and precision machined components in a factory office"
+        imagePosition="object-[45%_58%] lg:object-[36%_center]"
+        imageClassName="scale-[0.62] md:scale-[0.8] lg:scale-100"
+        imageOverlay={{
+          desktop:
+            "linear-gradient(90deg,rgba(0,59,92,0.90)_0%,rgba(0,59,92,0.72)_45%,rgba(0,59,92,0.20)_100%)",
+          mobile:
+            "linear-gradient(160deg,rgba(0,59,92,0.92)_0%,rgba(0,59,92,0.82)_55%,rgba(0,59,92,0.55)_100%)",
+        }}
       />
 
       <section aria-label="Contact details and enquiry form" className="bg-surface py-20 sm:py-24">
@@ -27,13 +62,59 @@ export default function ContactPage() {
               <ContactInformation />
             </Reveal>
             <Reveal delay={100} className="lg:col-span-3">
-              <ContactForm />
+              <Suspense
+                fallback={
+                  <div className="h-[640px] rounded-xl border border-line bg-white shadow-sm" />
+                }
+              >
+                <ContactForm />
+              </Suspense>
             </Reveal>
           </div>
         </div>
       </section>
 
-      <section aria-labelledby="location-heading" className="bg-white pb-20 sm:pb-24">
+      <section aria-labelledby="process-heading" className="bg-primary-soft py-16 sm:py-20">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <h2
+              id="process-heading"
+              className="font-display text-2xl font-bold tracking-tight text-primary-deep sm:text-3xl"
+            >
+              What Happens After You Contact Us?
+            </h2>
+            <span
+              aria-hidden="true"
+              className="mt-4 block h-1 w-14 rounded-full bg-accent"
+            />
+            <ol className="mt-10 grid gap-6 md:grid-cols-3">
+              {PROCESS_STEPS.map((step) => (
+                <li
+                  key={step.title}
+                  className="rounded-xl border border-white/60 bg-white p-6 shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-display text-2xl font-bold text-accent">
+                      {step.number}
+                    </span>
+                    <span className="grid size-10 place-items-center rounded-lg bg-primary-soft text-primary">
+                      <step.icon aria-hidden="true" className="size-5" />
+                    </span>
+                  </div>
+                  <h3 className="mt-4 font-display text-lg font-bold text-primary-deep">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ink">
+                    {step.description}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </Reveal>
+        </div>
+      </section>
+
+      <section aria-labelledby="location-heading" className="bg-white py-20 sm:py-24">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
             <h2

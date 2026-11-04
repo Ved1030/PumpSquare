@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { Check, ClipboardCheck, FlaskConical, Gauge, Ruler, ShieldCheck, Wrench } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import Reveal from "@/components/ui/Reveal";
@@ -8,6 +9,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import {
   aboutCompanyParagraphs,
   assemblyEquipment,
+  certificateLinkPhrase,
   certificationParagraphs,
   infrastructureParagraphs,
   machineryInstalled,
@@ -30,7 +32,17 @@ export default function AboutPage() {
         title="About Pumpsquare Systems LLP"
         description="A company manufacturing & marketing pumps, process equipment and installations from Vithal Udyog Nagar (near Anand), Gujarat – India."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "About Us" }]}
-        backgroundImage="/images/About_Img.png"
+        backgroundImage="/images/Modern Metal Fabrication Facility.png"
+        imageAlt="Modern metal fabrication facility with CNC machinery and an overhead yellow crane"
+        imagePosition="object-[45%_58%] lg:object-[36%_center]"
+        imageClassName="scale-[0.7] md:scale-[0.8] lg:scale-100"
+        imageOverlay={{
+          desktop:
+            "linear-gradient(90deg,rgba(0,59,92,0.90)_0%,rgba(0,59,92,0.72)_45%,rgba(0,59,92,0.20)_100%)",
+          mobile:
+            "linear-gradient(160deg,rgba(0,59,92,0.88)_0%,rgba(0,59,92,0.72)_55%,rgba(0,59,92,0.4)_100%)",
+        }}
+        highlight="Vithal Udyog Nagar"
       />
 
       <div className="bg-surface">
@@ -311,18 +323,36 @@ export default function AboutPage() {
                     </span>
                   </div>
                   <div className="mt-8 space-y-5">
-                    {certificationParagraphs.map((paragraph, index) => (
-                      <p
-                        key={paragraph.slice(0, 40)}
-                        className={
-                          index === 1
-                            ? "text-base sm:text-lg font-medium leading-[1.8] text-white"
-                            : "text-base sm:text-lg leading-[1.8] text-silver"
-                        }
-                      >
-                        {paragraph}
-                      </p>
-                    ))}
+                    {certificationParagraphs.map((paragraph, index) => {
+                      const linkStart = paragraph.indexOf(certificateLinkPhrase);
+                      const isLinked = index === 1 && linkStart !== -1;
+
+                      return (
+                        <p
+                          key={paragraph.slice(0, 40)}
+                          className={
+                            index === 1
+                              ? "text-[18px] font-semibold leading-[1.7] text-white"
+                              : "text-[19px] font-normal leading-[1.7] text-white"
+                          }
+                        >
+                          {isLinked ? (
+                            <>
+                              {paragraph.slice(0, linkStart)}
+                              <Link
+                                href="/contact"
+                                className="font-semibold text-accent underline decoration-accent underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+                              >
+                                {certificateLinkPhrase}
+                              </Link>
+                              {paragraph.slice(linkStart + certificateLinkPhrase.length)}
+                            </>
+                          ) : (
+                            paragraph
+                          )}
+                        </p>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

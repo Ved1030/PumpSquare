@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { navLinks, productMenu } from "@/lib/content";
 import { cn } from "@/lib/utils";
+import { usePagePathname } from "@/lib/use-page-pathname";
 import Logo from "./Logo";
 import MobileNavigation, { MobileMenuButton } from "./MobileNavigation";
 
@@ -17,10 +18,9 @@ export default function Header() {
   const [prevPathname, setPrevPathname] = useState(pathname);
   const productsRef = useRef<HTMLLIElement | null>(null);
 
-  const isHome = pathname === "/";
-  const isIndustries = pathname === "/industries";
-  const isAbout = pathname === "/about";
-  const transparent = (isHome || isIndustries || isAbout) && !scrolled;
+  const path = usePagePathname();
+  const hasOverlayHero = path === "/" || path === "/about" || path === "/industries" || path === "/contact";
+  const transparent = hasOverlayHero && !scrolled;
 
   const primaryLinks = navLinks.filter((link) => link.label !== "Contact Us");
   const contactLink = navLinks.find((link) => link.label === "Contact Us");
