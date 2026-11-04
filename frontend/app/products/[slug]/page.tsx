@@ -372,7 +372,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center">
-          <h1 className="font-display text-3xl font-bold text-primary mb-4">Product Not Found</h1>
+          <h1 className="font-display text-3xl font-bold text-primary-deep mb-4">Product Not Found</h1>
           <p className="text-muted mb-6">The requested product page does not exist.</p>
           <Link href="/#products" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent text-white font-semibold transition-colors hover:bg-accent-dark">
             Back to Products
@@ -436,7 +436,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
                   Product Series
                 </p>
               </div>
-              <h1 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-[1.1] tracking-tight text-primary">
+              <h1 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-[1.1] tracking-tight text-primary-deep">
                 {product.name}
               </h1>
               <span aria-hidden="true" className="mt-3 block h-1 w-16 rounded-full bg-accent" />
@@ -445,7 +445,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
               </p>
 
               <div className="mt-10">
-                <h2 className="font-display text-lg font-bold text-primary">Available Series</h2>
+                <h2 className="font-display text-lg font-bold text-primary-deep">Available Series</h2>
                 <ul className="mt-4 space-y-3">
                   {product.series.map((series, index) => (
                     <li key={index} className="flex items-center gap-3 rounded-lg border border-line bg-white p-4 shadow-sm transition-colors hover:border-accent/40">
@@ -457,7 +457,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
               </div>
 
               <div className="mt-10">
-                <h2 className="font-display text-lg font-bold text-primary">Key Features</h2>
+                <h2 className="font-display text-lg font-bold text-primary-deep">Key Features</h2>
                 <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                   {product.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-3 rounded-lg border border-line bg-white p-4 shadow-sm">
@@ -469,7 +469,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
               </div>
 
               <div className="mt-10">
-                <h2 className="font-display text-lg font-bold text-primary">Applications</h2>
+                <h2 className="font-display text-lg font-bold text-primary-deep">Applications</h2>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {product.applications.map((app, index) => (
                     <span key={index} className="rounded-full border border-line bg-white px-4 py-1.5 text-sm font-medium text-muted transition-colors hover:border-accent/40 hover:bg-primary-soft">
@@ -481,7 +481,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
 
               {product.specifications && (
                 <div className="mt-10">
-                  <h2 className="font-display text-lg font-bold text-primary">Specifications</h2>
+                  <h2 className="font-display text-lg font-bold text-primary-deep">Specifications</h2>
                   <div className="mt-4 rounded-xl border border-line bg-white overflow-hidden">
                     <dl className="divide-y divide-line">
                       {Object.entries(product.specifications).map(([key, values], index) => (
@@ -497,7 +497,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
 
               {product.materials && (
                 <div className="mt-10">
-                  <h2 className="font-display text-lg font-bold text-primary">Materials of Construction</h2>
+                  <h2 className="font-display text-lg font-bold text-primary-deep">Materials of Construction</h2>
                   <div className="mt-4 rounded-xl border border-line bg-white overflow-hidden">
                     <dl className="divide-y divide-line">
                       {Object.entries(product.materials).map(([key, value], index) => (

@@ -476,11 +476,8 @@ export default function Pump3DViewer({ showLabels = true, autoRotateSpeed = 1.2 
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
             <div className="flex items-center gap-2">
-              <span
-                className="w-6 h-0.5 rounded bg-accent"
-                style={{ backgroundColor: "#f5a623" }}
-              />
-              <span className="text-xs font-bold tracking-wider uppercase text-accent">
+              <span className="w-6 h-0.5 rounded bg-accent" />
+              <span className="text-xs font-bold tracking-wider uppercase text-primary">
                 INTERACTIVE 3D SHOWCASE
               </span>
             </div>

@@ -73,12 +73,12 @@ export default function AboutPage() {
                 aria-hidden="true"
                 className="block h-1 w-14 rounded-full bg-accent mb-6 animate-rise"
               />
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-steel mb-4 animate-rise" style={{ "--reveal-delay": "100ms" } as React.CSSProperties}>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-4 animate-rise" style={{ "--reveal-delay": "100ms" } as React.CSSProperties}>
                 ABOUT COMPANY
               </p>
               <h2
                 id="about-company"
-                className="font-display text-3xl sm:text-4xl lg:text-[42px] font-bold tracking-tight text-ink leading-[1.2] animate-rise"
+                className="font-display text-3xl sm:text-4xl lg:text-[42px] font-bold tracking-tight text-primary-deep leading-[1.2] animate-rise"
                 style={{ "--reveal-delay": "200ms" } as React.CSSProperties}
               >
                 About Company
@@ -129,7 +129,7 @@ export default function AboutPage() {
                   <span className="grid size-10 place-items-center rounded-lg bg-primary-soft text-steel">
                     <Wrench aria-hidden="true" className="size-5" />
                   </span>
-                  <h3 className="font-display text-lg font-bold text-ink">
+                  <h3 className="font-display text-lg font-bold text-primary-deep">
                     Machinery Installed
                   </h3>
                 </div>
@@ -156,7 +156,7 @@ export default function AboutPage() {
                   <span className="grid size-10 place-items-center rounded-lg bg-primary-soft text-steel">
                     <Gauge aria-hidden="true" className="size-5" />
                   </span>
-                  <h3 className="font-display text-lg font-bold text-ink">
+                  <h3 className="font-display text-lg font-bold text-primary-deep">
                     Testing Equipment&rsquo;s
                   </h3>
                 </div>
@@ -180,7 +180,7 @@ export default function AboutPage() {
                   <span className="grid size-10 place-items-center rounded-lg bg-primary-soft text-steel">
                     <ClipboardCheck aria-hidden="true" className="size-5" />
                   </span>
-                  <h3 className="font-display text-lg font-bold text-ink">
+                  <h3 className="font-display text-lg font-bold text-primary-deep">
                     Assembly Equipment&rsquo;s
                   </h3>
                 </div>

@@ -110,7 +110,7 @@ export default function ProductCarousel() {
               TOP PRODUCTS
             </p>
           </div>
-          <h2 className="mt-4 font-display text-3xl sm:text-4xl font-extrabold leading-[1.1] tracking-tight text-primary">
+          <h2 className="mt-4 font-display text-3xl sm:text-4xl font-extrabold leading-[1.1] tracking-tight text-primary-deep">
             Pumps We Manufacture
           </h2>
           <span aria-hidden="true" className="mt-3 block h-1 w-16 rounded-full bg-accent" />

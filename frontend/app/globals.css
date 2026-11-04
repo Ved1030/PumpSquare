@@ -21,6 +21,12 @@
 }
 
 @layer base {
+  :root {
+    --heading-primary: #003B5C;
+    --heading-eyebrow: #2774AE;
+    --heading-accent: #FFD100;
+  }
+
   html {
     scroll-behavior: smooth;
   }

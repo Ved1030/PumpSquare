@@ -28,7 +28,7 @@ export default function HeroSection() {
       <div className="relative z-10 w-full">
         <div className="w-full px-4 pb-10 pt-24 sm:px-6 sm:pt-24 lg:px-8 lg:pl-[7.5%] lg:pr-10 lg:pt-20">
           <div className="max-w-[700px]">
-            <p className="animate-rise inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-accent sm:text-xs">
+            <p className="animate-rise inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-primary sm:text-xs">
               <span aria-hidden="true" className="h-px w-8 bg-accent sm:w-10" />
               WE&rsquo;RE PUMPSQUARE
             </p>

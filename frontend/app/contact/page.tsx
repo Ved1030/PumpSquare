@@ -38,7 +38,7 @@ export default function ContactPage() {
           <Reveal>
             <h2
               id="location-heading"
-              className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl"
+              className="font-display text-2xl font-bold tracking-tight text-primary-deep sm:text-3xl"
             >
               Our Location
             </h2>

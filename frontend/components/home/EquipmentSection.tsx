@@ -23,15 +23,18 @@ export default function EquipmentSection() {
       <div className="relative mx-auto w-full max-w-[1450px] px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="grid lg:grid-cols-[0.48fr_0.52fr] gap-6 lg:gap-8 items-center">
           <Reveal delay={120} className="relative order-2 lg:order-1">
-            <div className="relative w-full h-[360px] lg:h-[420px]">
-              <Pump3DViewerWrapper showLabels={false} autoRotateSpeed={0.8} />
+            <div className="relative w-full h-[360px] lg:h-[420px] transform-gpu md:-translate-x-3 md:-translate-y-2 lg:-translate-x-5 lg:-translate-y-4">
+              <Pump3DViewerWrapper
+                showLabels={false}
+                autoRotateSpeed={0.8}
+              />
             </div>
           </Reveal>
 
           <Reveal className="order-1 lg:order-2">
             <div className="flex items-center gap-3">
               <span aria-hidden="true" className="h-1 w-10 rounded-full bg-accent flex-shrink-0" />
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-primary-deep">
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-primary">
                 CAPABILITIES
               </p>
             </div>

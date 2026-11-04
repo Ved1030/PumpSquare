@@ -6,7 +6,7 @@ export default function ContactInformation() {
 
   return (
     <div className="rounded-xl border border-line bg-white p-8 shadow-sm">
-      <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
+      <h2 className="font-display text-2xl font-bold tracking-tight text-primary-deep">
         Contact Information
       </h2>
       <span

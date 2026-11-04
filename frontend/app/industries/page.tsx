@@ -67,7 +67,7 @@ export default function IndustriesPage() {
                   aria-hidden="true"
                   className="mb-5 block h-1 w-10 rounded-full bg-accent"
                 />
-                <h2 className="max-w-lg font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+                <h2 className="max-w-lg font-display text-2xl font-bold tracking-tight text-primary-deep sm:text-3xl">
                   Looking for a pump for your industry?
                 </h2>
                 <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">

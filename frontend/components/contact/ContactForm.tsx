@@ -120,7 +120,7 @@ export default function ContactForm() {
     >
       <h2
         id="contact-form-heading"
-        className="font-display text-2xl font-bold tracking-tight text-ink"
+        className="font-display text-2xl font-bold tracking-tight text-primary-deep"
       >
         Send Us an Enquiry
       </h2>
