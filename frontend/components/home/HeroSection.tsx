@@ -25,6 +25,13 @@ export default function HeroSection() {
         className="absolute inset-0 bg-[linear-gradient(115deg,rgba(0,59,92,0.95)_0%,rgba(0,59,92,0.86)_38%,rgba(0,59,92,0.62)_72%,rgba(0,59,92,0.45)_100%)] lg:hidden"
       />
 
+      {/* Slight navy tint under the fixed transparent header so its links
+          stay legible whatever part of the photo sits beneath it. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-32 bg-[linear-gradient(to_bottom,rgba(0,59,92,0.45),rgba(0,59,92,0))]"
+      />
+
       <div className="relative z-10 w-full">
         <div className="w-full px-4 pb-10 pt-24 sm:px-6 sm:pt-24 lg:px-8 lg:pl-[7.5%] lg:pr-10 lg:pt-20">
           <div className="max-w-[700px]">

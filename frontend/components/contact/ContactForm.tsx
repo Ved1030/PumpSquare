@@ -11,7 +11,7 @@ import {
   Send,
 } from "lucide-react";
 import { site } from "@/lib/content";
-import { productCatalogue } from "@/lib/products";
+import type { ProductSummary } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
 const ENQUIRY_TYPES = [
@@ -83,9 +83,9 @@ const inputClasses = (hasError: boolean) =>
     hasError ? "border-red-500" : "border-line",
   );
 
-export default function ContactForm() {
+export default function ContactForm({ products }: { products: ProductSummary[] }) {
   const searchParams = useSearchParams();
-  const requestedProduct = productCatalogue.find(
+  const requestedProduct = products.find(
     (product) => product.slug === searchParams.get("product"),
   );
 
@@ -248,7 +248,7 @@ export default function ContactForm() {
           onChange={(value) => update("product", value)}
         >
           <option value={NO_PRODUCT}>{NO_PRODUCT}</option>
-          {productCatalogue.map((product) => (
+          {products.map((product) => (
             <option key={product.slug} value={product.name}>
               {product.name}
             </option>

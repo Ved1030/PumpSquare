@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import MainContent from "@/components/layout/MainContent";
-import Footer from "@/components/layout/Footer";
-import BackToTop from "@/components/ui/BackToTop";
-import FloatingContactButtons from "@/components/chatbot/FloatingContactButtons";
 import { site } from "@/lib/content";
 
 const inter = Inter({
@@ -62,13 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to main content
         </a>
-        <Header />
-        <main id="main-content" className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <BackToTop />
-        <FloatingContactButtons />
+        {children}
       </body>
     </html>
   );

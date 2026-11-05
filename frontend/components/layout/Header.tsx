@@ -19,7 +19,7 @@ export default function Header() {
   const productsRef = useRef<HTMLLIElement | null>(null);
 
   const path = usePagePathname();
-  const hasOverlayHero = path === "/" || path === "/about" || path === "/industries" || path === "/contact";
+  const hasOverlayHero = path === "/" || path === "/about" || path === "/industries" || path === "/contact" || path === "/products" || path.startsWith("/products/");
   const transparent = hasOverlayHero && !scrolled;
 
   const primaryLinks = navLinks.filter((link) => link.label !== "Contact Us");
@@ -119,20 +119,36 @@ export default function Header() {
                         {group.heading}
                       </p>
                       <ul>
-                        {group.items.map((item) => (
-                          <li key={item.label}>
-                            <a
-                              href={item.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              role="menuitem"
-                              onClick={() => setProductsOpen(false)}
-                              className="block rounded-md px-3 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft hover:text-primary-deep"
-                            >
-                              {item.label}
-                            </a>
-                          </li>
-                        ))}
+                        {group.items.map((item) => {
+                          const external = /^https?:\/\//.test(item.href);
+                          const className =
+                            "block rounded-md px-3 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft hover:text-primary-deep";
+                          return (
+                            <li key={item.label}>
+                              {external ? (
+                                <a
+                                  href={item.href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  role="menuitem"
+                                  onClick={() => setProductsOpen(false)}
+                                  className={className}
+                                >
+                                  {item.label}
+                                </a>
+                              ) : (
+                                <Link
+                                  href={item.href}
+                                  role="menuitem"
+                                  onClick={() => setProductsOpen(false)}
+                                  className={className}
+                                >
+                                  {item.label}
+                                </Link>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   ))}

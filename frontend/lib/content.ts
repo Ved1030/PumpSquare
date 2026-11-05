@@ -45,19 +45,11 @@ export const productMenu = [
   {
     heading: "Pumpsquare Products",
     items: [
-      { label: "Pumps", href: "https://pumpsquare.com/pumpsquareproducts.html" },
-      {
-        label: "Valves",
-        href: "https://pumpsquare.com/valves_filter_strainers_and_divisions.html#valves",
-      },
-      {
-        label: "Filters & Strainers",
-        href: "https://pumpsquare.com/valves_filter_strainers_and_divisions.html#filter",
-      },
-      {
-        label: "Other Divisions",
-        href: "https://pumpsquare.com/valves_filter_strainers_and_divisions.html#other",
-      },
+      // Category slugs come from the product_categories table in Supabase.
+      { label: "Pumps", href: "/products?category=pumps" },
+      { label: "Valves", href: "/products?category=valves" },
+      { label: "Filters & Strainers", href: "/products?category=filters-strainers" },
+      { label: "Other Divisions", href: "/products?category=other-divisions" },
     ],
   },
   {
@@ -111,18 +103,6 @@ export const productCategories = [
     description:
       "We are leading manufacturer of Pump Consultation and Machine Tools Division and many more products....",
   },
-] as const;
-
-export const topProducts = [
-  { name: "Progressive Cavity Pumps", image: "/images/products/progressive_cavity_pumps_small.jpg" },
-  { name: "Triple Screw Pumps", image: "/images/products/triple_screw_pumps_small.jpg" },
-  { name: "External Gear Pumps", image: "/images/products/external_gear_pumps_small.jpg" },
-  { name: "Twin Screw Pumps", image: "/images/products/twin_screw_pumps_small.jpg" },
-  { name: "Internal Gear Pumps", image: "/images/products/internal_gear_pumps_small.jpg" },
-  { name: "Gerotor Pumps", image: "/images/products/gerotor_pumps_small.jpg" },
-  { name: "Trochoidal Gear Pumps", image: "/images/products/trochoidal_gear_pumps_small.jpg" },
-  { name: "Shuttle Block Pumps", image: "/images/products/shuttle_block_pumps_small.jpg" },
-  { name: "External Lobe Pumps", image: "/images/products/external_lobe_pumps_small.jpg" },
 ] as const;
 
 export const industries = [

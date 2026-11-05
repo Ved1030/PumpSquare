@@ -5,6 +5,8 @@ import PageHero from "@/components/ui/PageHero";
 import Reveal from "@/components/ui/Reveal";
 import ContactInformation from "@/components/contact/ContactInformation";
 import ContactForm from "@/components/contact/ContactForm";
+import { getPublishedCatalogue } from "@/lib/product-catalogue";
+import type { ProductSummary } from "@/lib/products";
 
 const PROCESS_STEPS = [
   {
@@ -29,6 +31,17 @@ const PROCESS_STEPS = [
       "We suggest the most suitable pump and configuration for your duty, along with a quotation where required.",
   },
 ] as const;
+
+async function ContactFormLoader() {
+  const products: ProductSummary[] = (await getPublishedCatalogue()).map(({ slug, name }) => ({
+    slug,
+    name,
+    image: null,
+    category: null,
+  }));
+
+  return <ContactForm products={products} />;
+}
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -67,7 +80,7 @@ export default function ContactPage() {
                   <div className="h-[640px] rounded-xl border border-line bg-white shadow-sm" />
                 }
               >
-                <ContactForm />
+                <ContactFormLoader />
               </Suspense>
             </Reveal>
           </div>

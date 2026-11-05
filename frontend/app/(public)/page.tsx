@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import HeroSection from "@/components/home/HeroSection";
 import StatsSection from "@/components/home/StatsSection";
 import AboutPreview from "@/components/home/AboutPreview";
@@ -13,7 +14,9 @@ export default function Home() {
       <StatsSection />
       <AboutPreview />
       <ProductCategories />
-      <TopProducts />
+      <Suspense fallback={<div className="h-96 bg-white" />}>
+        <TopProducts />
+      </Suspense>
       <IndustriesSection />
       <EquipmentSection />
     </>

@@ -72,19 +72,30 @@ export default function MobileNavigation({
                       {group.heading}
                     </p>
                     <ul className="mt-1">
-                      {group.items.map((item) => (
-                        <li key={item.label}>
-                          <a
-                            href={item.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={onClose}
-                            className="block rounded-md px-3 py-2 text-sm font-medium text-white/90 transition-colors hover:bg-white/10 hover:text-white"
-                          >
-                            {item.label}
-                          </a>
-                        </li>
-                      ))}
+                      {group.items.map((item) => {
+                        const external = /^https?:\/\//.test(item.href);
+                        const className =
+                          "block rounded-md px-3 py-2 text-sm font-medium text-white/90 transition-colors hover:bg-white/10 hover:text-white";
+                        return (
+                          <li key={item.label}>
+                            {external ? (
+                              <a
+                                href={item.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={onClose}
+                                className={className}
+                              >
+                                {item.label}
+                              </a>
+                            ) : (
+                              <Link href={item.href} onClick={onClose} className={className}>
+                                {item.label}
+                              </Link>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 ))}

@@ -1,20 +1,129 @@
+export const REVIEW_TABS = [
+  { key: "series", label: "Series", defaultHeading: "Series Features" },
+  { key: "operational", label: "Operational", defaultHeading: "Operational Features" },
+  { key: "installation", label: "Installation", defaultHeading: "Installation Features" },
+  { key: "advantages", label: "Advantages", defaultHeading: "Product Advantages" },
+  { key: "industry", label: "Industry", defaultHeading: "Industries Served" },
+  { key: "sector", label: "Sector", defaultHeading: "Applicable Sectors" },
+  { key: "application", label: "Application", defaultHeading: "Applications" },
+  { key: "measures", label: "Measures", defaultHeading: "Measurements" },
+] as const;
+
+export type ReviewTabKey = (typeof REVIEW_TABS)[number]["key"];
+
+export type ReviewFeature = { label?: string; text: string };
+
+export type ReviewTab = {
+  key: ReviewTabKey;
+  enabled: boolean;
+  heading: string;
+  /** Sanitised HTML: paragraphs, bold, italic and basic lists. */
+  intro: string;
+  features: ReviewFeature[];
+};
+
+export type PerformanceColumn = { id: string; name: string; unit: string };
+export type PerformanceRow = { id: string; cells: Record<string, string> };
+
+export type MaterialRow = { id: string; component: string; material: string; specification: string };
+
+export type TechnicalContent = {
+  tabs: ReviewTab[];
+  performance: { columns: PerformanceColumn[]; rows: PerformanceRow[] };
+  materials: MaterialRow[];
+  paragraphs: { id: string; html: string }[];
+};
+
 export type ProductDetail = {
+  slug: string;
   name: string;
-  image: string;
+  category: { slug: string; name: string } | null;
+  summary: string;
   description: string;
+  image: string | null;
+  galleryImages?: string[];
   series: string[];
   features: string[];
   applications: string[];
-  specifications?: Record<string, string[]>;
-  materials?: Record<string, string>;
-  catalogueUrl?: string;
+  // Each value is [displayValue] or [displayValue, unit].
+  specifications: Record<string, string[]>;
+  materials: Record<string, string>;
+  datasheetUrl: string | null;
+  datasheetName: string | null;
+  catalogueUrl?: string | null;
+  catalogueName?: string | null;
+  catalogueAvailable?: boolean;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  updatedAt: string;
+  imageStoragePath?: string | null;
+  galleryStoragePaths?: string[];
+  catalogueStoragePath?: string | null;
+  datasheetStoragePath?: string | null;
+  technical?: TechnicalContent;
+};
+
+export type ProductCategory = {
+  slug: string;
+  name: string;
+};
+
+export type ProductSummary = {
+  slug: string;
+  name: string;
+  image: string | null;
+  summary?: string;
+  category: { slug: string; name: string } | null;
+  /** Set while browsing as a signed-in admin, so drafts can be previewed. */
+  status?: "draft" | "published";
+};
+
+export type AdminProductStatus = "draft" | "published";
+
+export type AdminProductSummary = ProductSummary & {
+  id: string;
+  status: AdminProductStatus;
+  displayOrder: number;
+  updatedAt: string;
+};
+
+export type AdminProduct = ProductDetail & {
+  id: string;
+  status: AdminProductStatus;
+  displayOrder: number;
+  createdAt: string;
+  categoryId: string | null;
+  technical: TechnicalContent;
+};
+
+export type AdminCategory = {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  parentId?: string | null;
+  isActive?: boolean;
+  sortOrder?: number;
+  productCount: number;
+  childIds?: string[];
+};
+
+export type PublicCategory = {
+  id: string;
+  slug: string;
+  name: string;
+  parentId: string | null;
 };
 
 const productsBySlug: Record<string, ProductDetail> = {
   "progressive-cavity-pumps": {
+    slug: "progressive-cavity-pumps",
     name: "Progressive Cavity Pumps",
-    image: "/images/products/progressive_cavity_pumps_small.jpg",
+    category: { slug: "industrial-pumps", name: "Industrial Pumps" },
+    summary:
+      "Helical rotor-and-stator positive displacement pumps for viscous, abrasive and shear-sensitive fluids.",
     description: "Progressive cavity pumps are positive displacement pumps that use a helical rotor and a double-threaded helical stator to create a continuous flow. These pumps are ideal for handling viscous, abrasive, and shear-sensitive fluids.",
+    image: "/images/products/progressive_cavity_pumps_small.jpg",
     series: ["Standard Series", "Heavy Duty Series", "Sanitary Series"],
     features: [
       "Smooth, pulsation-free flow",
@@ -45,305 +154,322 @@ const productsBySlug: Record<string, ProductDetail> = {
       "Rotor": "Chrome plated steel, Stainless steel 316, Hardened tool steel",
       "Body": "Cast iron, Stainless steel 316, Alloy steel"
     },
-    catalogueUrl: "/catalogues/progressive-cavity-pumps.pdf"
+    datasheetUrl: "/catalogues/progressive-cavity-pumps.pdf",
+    datasheetName: "Progressive Cavity Pumps Datasheet",
+    updatedAt: "2026-01-01T00:00:00.000Z"
   },
   "triple-screw-pumps": {
+    slug: "triple-screw-pumps",
     name: "Triple Screw Pumps",
-    image: "/images/products/triple_screw_pumps_small.jpg",
+    category: { slug: "industrial-pumps", name: "Industrial Pumps" },
+    summary:
+      "Quiet, pulsation-free screw pumps for lubricating oil, hydraulic and fuel duties.",
     description: "Triple screw pumps are high-performance positive displacement pumps with three intermeshing screws. They provide smooth, pulsation-free flow and are ideal for lubricating oil, hydraulic, and fuel applications.",
+    image: "/images/products/triple_screw_pumps_small.jpg",
     series: ["Low Pressure Series", "Medium Pressure Series", "High Pressure Series"],
     features: [
       "Extremely low noise and vibration",
       "High efficiency across wide operating range",
       "Pulsation-free continuous flow",
       "Self-lubricating screw design",
-      "Bidirectional operation capability",
-      "Compact and robust construction"
+      "Bidirectional operation capability"
     ],
     applications: [
-      "Power generation lubrication",
-      "Marine engine lubrication",
+      "Lubricating oil circulation",
       "Hydraulic systems",
       "Fuel oil transfer",
-      "Industrial gearboxes",
-      "Turbine lubrication"
+      "Marine engine lubrication",
+      "Power generation"
     ],
     specifications: {
-      "Capacity": ["Up to 1,500 m³/hr"],
+      "Capacity": ["Up to 300 m³/hr"],
       "Pressure": ["Up to 100 bar"],
-      "Temperature": ["-10°C to 180°C"],
-      "Viscosity": ["2 to 760 cSt"],
-      "Sizes": ["40mm to 400mm"],
-      "Drive": ["Direct coupled, motor mounted"]
+      "Temperature": ["Up to 150°C"],
+      "Viscosity": ["1 to 10,000 cSt"],
+      "Sizes": ["40mm to 250mm"],
+      "Drive": ["Direct coupled, VFD"]
     },
     materials: {
-      "Screws": "Hardened alloy steel, Nitride treated",
-      "Casing": "Cast iron, Ductile iron, Steel",
-      "Bearings": "Product lubricated, External lubrication optional"
+      "Screws": "Hardened alloy steel, Nitrided steel",
+      "Casing": "Cast iron, Stainless steel 316",
+      "Shaft seal": "Mechanical seal, Lip seal"
     },
-    catalogueUrl: "/catalogues/triple-screw-pumps.pdf"
+    datasheetUrl: "/catalogues/triple-screw-pumps.pdf",
+    datasheetName: "Triple Screw Pumps Datasheet",
+    updatedAt: "2026-01-01T00:00:00.000Z"
   },
   "external-gear-pumps": {
+    slug: "external-gear-pumps",
     name: "External Gear Pumps",
+    category: { slug: "industrial-pumps", name: "Industrial Pumps" },
+    summary:
+      "Robust external gear pumps for clean lubricating fluids and hydraulic transfers.",
+    description: "External gear pumps use two intermeshing gears to move fluid in a positive displacement manner. They are robust, compact, and well suited to clean lubricating fluids and hydraulic applications.",
     image: "/images/products/external_gear_pumps_small.jpg",
-    description: "External gear pumps use two identical gears rotating against each other to create flow. They are simple, reliable, and widely used for clean, lubricating fluids in industrial applications.",
-    series: ["Standard Series", "High Pressure Series", "Magnetically Coupled Series"],
+    series: ["Standard Series", "High Pressure Series"],
     features: [
-      "Simple, robust construction",
-      "High pressure capability",
-      "Bidirectional operation",
-      "Compact design",
-      "Cost-effective solution",
+      "Simple two-gear construction",
+      "Compact footprint",
+      "Good volumetric efficiency",
+      "Handles high pressures",
       "Easy maintenance"
     ],
     applications: [
-      "Hydraulic power units",
+      "Hydraulic power packs",
       "Lubrication systems",
-      "Fuel oil systems",
-      "Chemical dosing",
-      "Cooling systems",
-      "Filtration systems"
+      "Fuel transfer",
+      "Chemical dosing of clean fluids"
     ],
     specifications: {
-      "Capacity": ["Up to 300 m³/hr"],
+      "Capacity": ["Up to 150 m³/hr"],
       "Pressure": ["Up to 250 bar"],
-      "Temperature": ["-20°C to 200°C"],
-      "Viscosity": ["10 to 100,000 cSt"],
-      "Sizes": ["15mm to 150mm"],
-      "Drive": ["Direct coupled, close coupled, bell housing"]
+      "Temperature": ["Up to 120°C"],
+      "Viscosity": ["1 to 20,000 cSt"],
+      "Sizes": ["10mm to 100mm"],
+      "Drive": ["Direct coupled, VFD"]
     },
     materials: {
-      "Gears": "Hardened steel, Cast iron, Stainless steel",
-      "Body": "Cast iron, Ductile iron, Stainless steel",
-      "Bearings": "Product lubricated, External optional"
+      "Gears": "Hardened alloy steel",
+      "Casing": "Cast iron, Aluminum, Stainless steel",
+      "Shaft seal": "Mechanical seal, Lip seal"
     },
-    catalogueUrl: "/catalogues/external-gear-pumps.pdf"
+    datasheetUrl: "/catalogues/external-gear-pumps.pdf",
+    datasheetName: "External Gear Pumps Datasheet",
+    updatedAt: "2026-01-01T00:00:00.000Z"
   },
   "twin-screw-pumps": {
+    slug: "twin-screw-pumps",
     name: "Twin Screw Pumps",
+    category: { slug: "industrial-pumps", name: "Industrial Pumps" },
+    summary:
+      "High-capacity, low-shear twin screw pumps for viscous liquids and multiphase duties.",
+    description: "Twin screw pumps are positive displacement pumps using two non-contacting screws. They handle high flow rates, viscous liquids and shear-sensitive fluids with low pulsation and excellent suction performance.",
     image: "/images/products/twin_screw_pumps_small.jpg",
-    description: "Twin screw pumps feature two intermeshing screws that provide smooth, non-pulsating flow. They excel in handling multiphase fluids and are widely used in oil & gas, marine, and process industries.",
-    series: ["Standard Series", "Multiphase Series", "Hygienic Series"],
+    series: ["Non-Contacting Series", "Contacting Series", "Multiphase Series"],
     features: [
-      "Handles multiphase flow (gas/liquid)",
-      "Self-priming with high suction lift",
-      "Low NPSH requirements",
-      "Non-contacting screws - no wear",
-      "CIP/SIP capable (hygienic series)",
-      "Wide viscosity range"
+      "Excellent suction lift capability",
+      "Low shear and gentle handling",
+      "High flow at moderate pressures",
+      "Handles solids-laden and viscous media"
     ],
     applications: [
-      "Crude oil transfer",
-      "Multiphase production",
-      "Ship loading/unloading",
-      "Tank farm operations",
+      "Crude oil and multiphase transport",
+      "Chemical processing",
       "Food and pharmaceutical",
-      "Chemical processing"
+      "Marine and shipboard transfer"
     ],
     specifications: {
-      "Capacity": ["Up to 2,000 m³/hr"],
-      "Pressure": ["Up to 80 bar"],
-      "Temperature": ["-40°C to 200°C"],
-      "Viscosity": ["1 to 1,000,000 cSt"],
-      "Sizes": ["50mm to 500mm"],
-      "Drive": ["Direct coupled, belt drive, gearbox"]
-    },
-    materials: {
-      "Screws": "Hardened steel, Stainless steel, Coated options",
-      "Casing": "Cast steel, Stainless steel, Duplex steel",
-      "Seals": "Mechanical seals, Magnetic coupling"
-    },
-    catalogueUrl: "/catalogues/twin-screw-pumps.pdf"
-  },
-  "internal-gear-pumps": {
-    name: "Internal Gear Pumps",
-    image: "/images/products/internal_gear_pumps_small.jpg",
-    description: "Internal gear pumps use a rotor and idler gear with internal meshing. They provide smooth, low-pulsation flow and are excellent for high-viscosity fluids including asphalt, chocolate, and adhesives.",
-    series: ["Standard Series", "Jacketted Series", "Sealless Magnetic Drive"],
-    features: [
-      "Handles extremely high viscosity",
-      "Smooth, low-pulsation flow",
-      "Single point end clearance adjustment",
-      "Jacketted options for temperature control",
-      "Sealless magnetic drive available",
-      "Bidirectional operation"
-    ],
-    applications: [
-      "Asphalt and bitumen",
-      "Chocolate and confectionery",
-      "Adhesives and sealants",
-      "Resins and polymers",
-      "Heavy fuel oil",
-      "Surfactants and soaps"
-    ],
-    specifications: {
-      "Capacity": ["Up to 500 m³/hr"],
-      "Pressure": ["Up to 14 bar"],
-      "Temperature": ["-20°C to 250°C"],
-      "Viscosity": ["Up to 1,000,000 cSt"],
-      "Sizes": ["25mm to 250mm"],
-      "Drive": ["Direct coupled, belt drive, gear reducer"]
-    },
-    materials: {
-      "Gears": "Cast iron, Steel, Stainless steel, Bronze",
-      "Casing": "Cast iron, Ductile iron, Stainless steel",
-      "Bearings": "Product lubricated, External optional"
-    },
-    catalogueUrl: "/catalogues/internal-gear-pumps.pdf"
-  },
-  "gerotor-pumps": {
-    name: "Gerotor Pumps",
-    image: "/images/products/gerotor_pumps_small.jpg",
-    description: "Gerotor pumps use an inner rotor with external teeth and an outer rotor with internal teeth. They are compact, efficient, and widely used in automotive and industrial lubrication systems.",
-    series: ["Standard Series", "High Speed Series", "Custom Profile Series"],
-    features: [
-      "Extremely compact design",
-      "High volumetric efficiency",
-      "Low noise operation",
-      "Smooth flow characteristics",
-      "Cost-effective for OEM volumes",
-      "Custom profiles available"
-    ],
-    applications: [
-      "Engine lubrication",
-      "Transmission systems",
-      "Hydraulic power steering",
-      "Fuel injection systems",
-      "Industrial lubrication",
-      "Cooling circuits"
-    ],
-    specifications: {
-      "Capacity": ["Up to 100 L/min"],
-      "Pressure": ["Up to 50 bar"],
-      "Temperature": ["-40°C to 150°C"],
-      "Viscosity": ["10 to 5,000 cSt"],
-      "Sizes": ["10mm to 80mm"],
-      "Drive": ["Direct coupled, spline drive, press fit"]
-    },
-    materials: {
-      "Rotors": "Powdered metal, Hardened steel",
-      "Body": "Aluminum, Cast iron, Steel",
-      "Port plates": "Bronze, Composite materials"
-    },
-    catalogueUrl: "/catalogues/gerotor-pumps.pdf"
-  },
-  "trochoidal-gear-pumps": {
-    name: "Trochoidal Gear Pumps",
-    image: "/images/products/trochoidal_gear_pumps_small.jpg",
-    description: "Trochoidal gear pumps use cycloidal gear profiles for exceptionally smooth, low-pulsation flow. They are ideal for precision metering and high-pressure hydraulic applications.",
-    series: ["Standard Series", "High Precision Series", "High Pressure Series"],
-    features: [
-      "Exceptionally low flow pulsation",
-      "High pressure capability",
-      "Precision metering accuracy",
-      "Low noise and vibration",
-      "Long service life",
-      "Compact footprint"
-    ],
-    applications: [
-      "Precision metering",
-      "High-pressure hydraulics",
-      "Fuel injection systems",
-      "Chemical dosing",
-      "Test rigs and laboratories",
-      "Aerospace hydraulics"
-    ],
-    specifications: {
-      "Capacity": ["Up to 200 L/min"],
-      "Pressure": ["Up to 300 bar"],
-      "Temperature": ["-20°C to 180°C"],
-      "Viscosity": ["5 to 10,000 cSt"],
-      "Sizes": ["8mm to 60mm"],
-      "Drive": ["Direct coupled, motor mounted"]
-    },
-    materials: {
-      "Gears": "Hardened tool steel, Carbide options",
-      "Body": "High strength steel, Stainless steel",
-      "Bearings": "Hydrodynamic, Roller bearings"
-    },
-    catalogueUrl: "/catalogues/trochoidal-gear-pumps.pdf"
-  },
-  "shuttle-block-pumps": {
-    name: "Shuttle Block Pumps",
-    image: "/images/products/shuttle_block_pumps_small.jpg",
-    description: "Shuttle block pumps (also known as radial piston pumps) use multiple pistons in a rotating cylinder block. They provide extremely high pressure capability and are used in demanding industrial and mobile hydraulic applications.",
-    series: ["Fixed Displacement", "Variable Displacement", "Multiple Flow Series"],
-    features: [
-      "Extremely high pressure capability",
-      "High volumetric efficiency",
-      "Low noise at high pressure",
-      "Multiple outlet options",
-      "Through-drive capability",
-      "Variable displacement available"
-    ],
-    applications: [
-      "High-pressure hydraulics",
-      "Presses and forming machines",
-      "Injection molding",
-      "Die casting machines",
-      "Test rigs",
-      "Marine deck machinery"
-    ],
-    specifications: {
-      "Capacity": ["Up to 500 L/min"],
-      "Pressure": ["Up to 700 bar"],
-      "Temperature": ["-20°C to 100°C"],
-      "Viscosity": ["10 to 2,000 cSt"],
-      "Sizes": ["Various frame sizes"],
-      "Drive": ["Direct coupled, flange mounted"]
-    },
-    materials: {
-      "Pistons": "Hardened steel, Carbide coated",
-      "Cylinder block": "Hardened steel",
-      "Body": "High strength cast iron, Steel"
-    },
-    catalogueUrl: "/catalogues/shuttle-block-pumps.pdf"
-  },
-  "external-lobe-pumps": {
-    name: "External Lobe Pumps",
-    image: "/images/products/external_lobe_pumps_small.jpg",
-    description: "External lobe pumps use two or more lobes rotating in opposite directions. They provide gentle, low-shear pumping action ideal for food, pharmaceutical, and biotechnology applications.",
-    series: ["Sanitary Series", "Industrial Series", "High Viscosity Series"],
-    features: [
-      "Gentle product handling",
-      "CIP/SIP capable",
-      "Low shear rate",
-      "Handles solids and particulates",
-      "Reversible flow",
-      "Easy maintenance and cleaning"
-    ],
-    applications: [
-      "Dairy processing",
-      "Beverage production",
-      "Pharmaceutical manufacturing",
-      "Biotechnology",
-      "Cosmetics and personal care",
-      "Sauces and condiments"
-    ],
-    specifications: {
-      "Capacity": ["Up to 300 m³/hr"],
-      "Pressure": ["Up to 15 bar"],
-      "Temperature": ["-20°C to 150°C"],
-      "Viscosity": ["Up to 500,000 cSt"],
-      "Sizes": ["25mm to 200mm"],
+      "Capacity": ["Up to 1,500 m³/hr"],
+      "Pressure": ["Up to 40 bar"],
+      "Temperature": ["Up to 250°C"],
+      "Viscosity": ["Up to 100,000 cSt"],
+      "Sizes": ["50mm to 600mm"],
       "Drive": ["Direct coupled, gearbox, VFD"]
     },
     materials: {
-      "Lobes": "Stainless steel 316L, Non-metallic options",
-      "Body": "Stainless steel 316L, Electropolished",
-      "Seals": "EPDM, Viton, PTFE, FEP encapsulated"
+      "Screws": "Stainless steel 316, Duplex steel",
+      "Casing": "Cast iron, Stainless steel, Duplex",
+      "Timing gears": "Hardened alloy steel"
     },
-    catalogueUrl: "/catalogues/external-lobe-pumps.pdf"
+    datasheetUrl: "/catalogues/twin-screw-pumps.pdf",
+    datasheetName: "Twin Screw Pumps Datasheet",
+    updatedAt: "2026-01-01T00:00:00.000Z"
   },
+  "internal-gear-pumps": {
+    slug: "internal-gear-pumps",
+    name: "Internal Gear Pumps",
+    category: { slug: "industrial-pumps", name: "Industrial Pumps" },
+    summary:
+      "Compact, quiet internal gear pumps for lubricating and process fluids.",
+    description: "Internal gear pumps use an inner driving gear meshing with an outer ring gear to displace fluid. Their gentle action and compact form suit lubricating and process fluids.",
+    image: "/images/products/internal_gear_pumps_small.jpg",
+    series: ["Standard Series", "Sanitary Series"],
+    features: [
+      "Low noise and long service life",
+      "Good handling of viscous liquids",
+      "Self-priming",
+      "Compact design"
+    ],
+    applications: [
+      "Lubrication and oil circulation",
+      "Chemical and petrochemical transfer",
+      "Food processing",
+      "Marine engines"
+    ],
+    specifications: {
+      "Capacity": ["Up to 200 m³/hr"],
+      "Pressure": ["Up to 16 bar"],
+      "Temperature": ["Up to 200°C"],
+      "Viscosity": ["Up to 200,000 cSt"],
+      "Sizes": ["25mm to 200mm"],
+      "Drive": ["Direct coupled, VFD"]
+    },
+    materials: {
+      "Gears": "Hardened alloy steel, Stainless steel",
+      "Casing": "Cast iron, Stainless steel 316",
+      "Shaft seal": "Mechanical seal, Lip seal"
+    },
+    datasheetUrl: "/catalogues/internal-gear-pumps.pdf",
+    datasheetName: "Internal Gear Pumps Datasheet",
+    updatedAt: "2026-01-01T00:00:00.000Z"
+  },
+  "gerotor-pumps": {
+    slug: "gerotor-pumps",
+    name: "Gerotor Pumps",
+    category: { slug: "industrial-pumps", name: "Industrial Pumps" },
+    summary:
+      "Compact gerotor pumps for lubrication, hydraulics and small dosing duties.",
+    description: "Gerotor pumps use an inner rotor with one fewer tooth than the outer rotor to move fluid smoothly. They are compact, quiet and suited to lubrication and hydraulic duties.",
+    image: "/images/products/gerotor_pumps_small.jpg",
+    series: ["Standard Series"],
+    features: [
+      "Smooth, low-pulsation flow",
+      "Compact and lightweight",
+      "Low noise",
+      "Cost-effective design"
+    ],
+    applications: [
+      "Engine lubrication",
+      "Hydraulic systems",
+      "Oil transfer",
+      "Small transfer duties"
+    ],
+    specifications: {
+      "Capacity": ["Up to 60 m³/hr"],
+      "Pressure": ["Up to 20 bar"],
+      "Temperature": ["Up to 120°C"],
+      "Viscosity": ["Up to 50,000 cSt"],
+      "Sizes": ["10mm to 80mm"],
+      "Drive": ["Direct coupled, VFD"]
+    },
+    materials: {
+      "Rotors": "Powder metallurgy, Hardened steel",
+      "Casing": "Cast iron, Aluminum",
+      "Shaft seal": "Lip seal, Mechanical seal"
+    },
+    datasheetUrl: "/catalogues/gerotor-pumps.pdf",
+    datasheetName: "Gerotor Pumps Datasheet",
+    updatedAt: "2026-01-01T00:00:00.000Z"
+  },
+  "trochoidal-gear-pumps": {
+    slug: "trochoidal-gear-pumps",
+    name: "Trochoidal Gear Pumps",
+    category: { slug: "industrial-pumps", name: "Industrial Pumps" },
+    summary:
+      "Trochoidal gear pumps delivering smooth, pulse-free flow for lubrication duties.",
+    description: "Trochoidal gear pumps use a trochoidal rotor set to deliver a steady flow. They provide low pulsation, compact dimensions and reliable performance for lubrication and transfer duties.",
+    image: "/images/products/trochoidal_gear_pumps_small.jpg",
+    series: ["Standard Series"],
+    features: [
+      "Pulse-free discharge",
+      "Compact construction",
+      "Low wear between rotors",
+      "Easy installation"
+    ],
+    applications: [
+      "Lubricating oil systems",
+      "Hydraulic circuits",
+      "Fuel transfer"
+    ],
+    specifications: {
+      "Capacity": ["Up to 80 m³/hr"],
+      "Pressure": ["Up to 25 bar"],
+      "Temperature": ["Up to 120°C"],
+      "Viscosity": ["Up to 40,000 cSt"],
+      "Sizes": ["12mm to 90mm"],
+      "Drive": ["Direct coupled, VFD"]
+    },
+    materials: {
+      "Rotors": "Hardened steel",
+      "Casing": "Cast iron, Aluminum",
+      "Shaft seal": "Lip seal"
+    },
+    datasheetUrl: "/catalogues/trochoidal-gear-pumps.pdf",
+    datasheetName: "Trochoidal Gear Pumps Datasheet",
+    updatedAt: "2026-01-01T00:00:00.000Z"
+  },
+  "shuttle-block-pumps": {
+    slug: "shuttle-block-pumps",
+    name: "Shuttle Block Pumps",
+    category: { slug: "industrial-pumps", name: "Industrial Pumps" },
+    summary:
+      "Shuttle block pumps for smooth, low-shear transfer of viscous products.",
+    description: "Shuttle block pumps use a rotating block and shuttle arrangement to deliver a gentle, pulse-free flow, making them suitable for viscous and shear-sensitive products.",
+    image: "/images/products/shuttle_block_pumps_small.jpg",
+    series: ["Standard Series"],
+    features: [
+      "Gentle, low-shear handling",
+      "Smooth discharge",
+      "Self-priming",
+      "Handles viscous media"
+    ],
+    applications: [
+      "Food processing",
+      "Paint and resin transfer",
+      "Chemical processing"
+    ],
+    specifications: {
+      "Capacity": ["Up to 120 m³/hr"],
+      "Pressure": ["Up to 12 bar"],
+      "Temperature": ["Up to 120°C"],
+      "Viscosity": ["Up to 150,000 cSt"],
+      "Sizes": ["25mm to 150mm"],
+      "Drive": ["Direct coupled, VFD"]
+    },
+    materials: {
+      "Block and shuttle": "Hardened alloy steel",
+      "Casing": "Cast iron, Stainless steel",
+      "Shaft seal": "Mechanical seal"
+    },
+    datasheetUrl: "/catalogues/shuttle-block-pumps.pdf",
+    datasheetName: "Shuttle Block Pumps Datasheet",
+    updatedAt: "2026-01-01T00:00:00.000Z"
+  },
+  "external-lobe-pumps": {
+    slug: "external-lobe-pumps",
+    name: "External Lobe Pumps",
+    category: { slug: "industrial-pumps", name: "Industrial Pumps" },
+    summary:
+      "Non-contacting lobe pumps for hygienic, solids-tolerant and viscous fluids.",
+    description: "External lobe pumps use two non-contacting rotary lobes to move product gently. With a CIP-friendly design, they are well suited to food, pharmaceutical and viscous process duties.",
+    image: "/images/products/external_lobe_pumps_small.jpg",
+    series: ["Sanitary Series", "Industrial Series"],
+    features: [
+      "Gentle, low-shear pumping",
+      "Handles solids and viscous products",
+      "CIP and SIP capable",
+      "Excellent suction performance"
+    ],
+    applications: [
+      "Food and beverage",
+      "Pharmaceutical",
+      "Cosmetics",
+      "Chemical and pulp transfer"
+    ],
+    specifications: {
+      "Capacity": ["Up to 500 m³/hr"],
+      "Pressure": ["Up to 16 bar"],
+      "Temperature": ["Up to 180°C"],
+      "Viscosity": ["Up to 200,000 cSt"],
+      "Sizes": ["25mm to 250mm"],
+      "Drive": ["Direct coupled, gearbox, VFD"]
+    },
+    materials: {
+      "Lobes": "Stainless steel 316L, Nitrile, EPDM",
+      "Casing": "Stainless steel 316L",
+      "Shaft seal": "Mechanical seal, O-ring"
+    },
+    datasheetUrl: "/catalogues/external-lobe-pumps.pdf",
+    datasheetName: "External Lobe Pumps Datasheet",
+    updatedAt: "2026-01-01T00:00:00.000Z"
+  }
 };
 
-export const productSlugs = Object.keys(productsBySlug);
+export const seedCategories: ProductCategory[] = [
+  { slug: "industrial-pumps", name: "Industrial Pumps" },
+  { slug: "marine-pumps", name: "Marine Pumps" },
+  { slug: "relief-valves", name: "Relief Valves" },
+  { slug: "pump-consultation", name: "Pump Consultation" },
+];
 
-export const productCatalogue = productSlugs.map((slug) => ({
-  slug,
-  name: productsBySlug[slug].name,
-}));
-
-export function getProduct(slug: string): ProductDetail | undefined {
-  return productsBySlug[slug];
-}
+export const seedProducts: ProductDetail[] = Object.values(productsBySlug);
