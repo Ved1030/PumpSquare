@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env.js";
 import { getSupabaseAdmin } from "../lib/supabase.js";
-import { hasCategoryColumns, hasProductMigration } from "../lib/product-schema.js";
+import { hasCategoryColumns, hasProductMigration, hasStoragePathColumns } from "../lib/product-schema.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
@@ -233,7 +233,8 @@ function requirePermission(permission) {
 /* ---------- Products ---------- */
 
 async function productSchema() {
-  return { current: await hasProductMigration() };
+  const [current, storage] = await Promise.all([hasProductMigration(), hasStoragePathColumns()]);
+  return { current, storage };
 }
 
 function mapSpecEntries(record = {}) {
@@ -703,16 +704,13 @@ function toMaterialRecord(entries) {
   return Object.fromEntries(entries.map((entry) => [entry.key, entry.value]));
 }
 
-function toProductColumns(input, current) {
+function toProductColumns(input, schema) {
   const columns = {
     slug: input.slug,
     name: input.name,
     category_id: input.categoryId,
     summary: input.summary || "",
     description: input.description || "",
-    image_url: input.imageUrl || null,
-    datasheet_url: input.datasheetUrl || null,
-    datasheet_name: input.datasheetUrl ? input.datasheetName || null : null,
     series: input.series || [],
     features: input.features || [],
     applications: input.applications || [],
@@ -720,15 +718,33 @@ function toProductColumns(input, current) {
     materials: toMaterialRecord(input.materials || []),
   };
 
-  if (current) {
+  // image_url predates the migration, so it is always written. A partial update
+  // that does not mention the image must not clear it, though.
+  if (input.imageUrl !== undefined) columns.image_url = input.imageUrl || null;
+
+  // Documents are not optional extras: if they are dropped the public download
+  // silently 404s. Like the image, they are only touched when the update names
+  // them, so an unrelated save never erases a catalogue. The url/name columns
+  // predate the migration; storage-path columns are written only if they exist.
+  const storage = schema.storage;
+  if (input.catalogueUrl !== undefined) {
+    const hasCatalogue = Boolean(input.catalogueUrl);
+    columns.catalogue_url = input.catalogueUrl || null;
+    columns.catalogue_name = hasCatalogue ? input.catalogueName || null : null;
+    if (storage.catalogue) columns.catalogue_storage_path = storagePathFromReference(input.catalogueUrl, input.catalogueStoragePath);
+  }
+  if (input.datasheetUrl !== undefined) {
+    const hasDatasheet = Boolean(input.datasheetUrl);
+    columns.datasheet_url = input.datasheetUrl || null;
+    columns.datasheet_name = hasDatasheet ? input.datasheetName || null : null;
+    if (storage.datasheet) columns.datasheet_storage_path = storagePathFromReference(input.datasheetUrl, input.datasheetStoragePath);
+  }
+  if (storage.image) columns.image_storage_path = input.imageUrl !== undefined ? input.imageStoragePath || null : undefined;
+  if (storage.gallery) columns.gallery_storage_paths = input.galleryImages ? input.galleryStoragePaths || [] : [];
+
+  if (schema.current) {
     Object.assign(columns, {
-      image_storage_path: input.imageUrl ? input.imageStoragePath || null : null,
       gallery_images: input.galleryImages || [],
-      gallery_storage_paths: input.galleryImages ? input.galleryStoragePaths || [] : [],
-      catalogue_url: input.catalogueUrl || null,
-      catalogue_name: input.catalogueUrl ? input.catalogueName || null : null,
-      catalogue_storage_path: input.catalogueUrl ? input.catalogueStoragePath || null : null,
-      datasheet_storage_path: input.datasheetUrl ? input.datasheetStoragePath || null : null,
       seo_title: input.seoTitle || null,
       seo_description: input.seoDescription || null,
       display_order: input.displayOrder ?? 0,
@@ -778,6 +794,12 @@ function storageKeyFromUrl(url) {
   return decodeURIComponent(new URL(url).pathname.split("/product-uploads/")[1] || "") || null;
 }
 
+// The client may send the document url without the storage path (older editors,
+// merges from the admin row), so the url is authoritative when it names an object.
+function storagePathFromReference(url, path) {
+  return storageKeyFromUrl(url) ?? (isStorageKey(path) ? path : null);
+}
+
 // Admin-owned storage writes always run with the service-role key: the client
 // has no user session, so Supabase Storage authorises each request with the
 // service key's Bearer token and bypasses the bucket's (empty) RLS policies.
@@ -788,6 +810,24 @@ function getStorageClient() {
 }
 
 const storageBucket = () => getStorageClient().storage.from(STORAGE_BUCKET);
+
+// Uploads made through /uploads that have not been saved to a product yet, per
+// product and slot. The whole API runs as one service account, so this is
+// process-wide rather than per editor.
+const pendingUploadRegistry = new Map();
+const PENDING_UPLOAD_MS = 10 * 60 * 1000;
+
+function pendingUploads(productId) {
+  const slots = pendingUploadRegistry.get(productId) ?? new Map();
+  for (const [slot, at] of slots) {
+    if (Date.now() - at > PENDING_UPLOAD_MS) slots.delete(slot);
+  }
+  return slots;
+}
+
+function clearPendingUploads(productId) {
+  pendingUploadRegistry.delete(productId);
+}
 
 async function removeStorageKeys(keys) {
   const unique = [...new Set(keys)].filter(isStorageKey);
@@ -852,7 +892,7 @@ router.post("/products", requireAuth, requirePermission("products:write"), async
       .from("products")
       .insert({
         id: randomUUID(),
-        ...toProductColumns(input, schema.current),
+        ...toProductColumns(input, schema),
         status,
         published_at: status === "published" ? new Date().toISOString() : null,
       })
@@ -946,7 +986,7 @@ router.patch("/products/:id", requireAuth, requirePermission("products:write"), 
     const { data, error } = await supabase
       .from("products")
       .update({
-        ...toProductColumns(input, schema.current),
+        ...toProductColumns(input, schema),
         status: nextStatus,
         published_at:
           nextStatus !== "published"
@@ -968,26 +1008,38 @@ router.patch("/products/:id", requireAuth, requirePermission("products:write"), 
     // Omitted technical content is left untouched (e.g. a status-only save).
     if (input.technical) await replaceTechnical(supabase, current.id, input.technical);
 
-    // Drop files the editor removed so storage does not accumulate orphans.
-    if (schema.current) {
+    // The editor saves right after each upload completes, so anything still
+    // pending at this point belongs to a later upload and stays pending.
+    clearPendingUploads(current.id);
+
+    // Drop files the editor removed or replaced so storage does not accumulate
+    // orphans.
+    if (schema.storage.catalogue || schema.storage.datasheet || schema.storage.image || schema.storage.gallery) {
+      const keyOf = (value) => storageKeyFromUrl(value) ?? (isStorageKey(value) ? value : null);
       const kept = new Set(
-        [input.imageUrl, ...(input.galleryImages || []), input.datasheetUrl, input.catalogueUrl]
+        [input.imageUrl, ...(input.galleryImages ?? []), input.datasheetUrl, input.catalogueUrl]
           .map(storageKeyFromUrl)
           .filter(Boolean),
       );
-      const previous = [
-        current.image_url,
-        ...(current.gallery_images || []),
-        current.datasheet_url,
-        current.catalogue_url,
-        current.image_storage_path,
-        ...(current.gallery_storage_paths || []),
-        current.catalogue_storage_path,
-        current.datasheet_storage_path,
-      ]
-        .map((value) => storageKeyFromUrl(value) ?? (isStorageKey(value) ? value : null))
-        .filter((key) => key?.startsWith(`products/${current.id}/`) && !kept.has(key));
-      await removeStorageKeys(previous);
+      // A file is orphaned only when the field that referenced it was part of
+      // this update and no longer points at it. Fields the caller omitted (a
+      // status-only save) or did not attach an upload to are left untouched.
+      const pending = pendingUploads(current.id);
+      const references = [
+        { field: "catalogueUrl", keys: [current.catalogue_url, current.catalogue_storage_path], upload: "catalogue" },
+        { field: "datasheetUrl", keys: [current.datasheet_url, current.datasheet_storage_path], upload: "datasheet" },
+        { field: "imageUrl", keys: [current.image_url, current.image_storage_path], upload: "main" },
+        { field: "galleryImages", keys: [...(current.gallery_images ?? []), ...(current.gallery_storage_paths ?? [])], upload: "gallery" },
+      ];
+      const orphans = [];
+      for (const { field, keys, upload } of references) {
+        const superseded = [...pending.keys()].some((slot) => slot.startsWith(upload));
+        if (!(field in input) || superseded) continue;
+        for (const key of keys.map(keyOf)) {
+          if (key?.startsWith(`products/${current.id}/`) && !kept.has(key)) orphans.push(key);
+        }
+      }
+      await removeStorageKeys(orphans);
     }
 
     res.json({ ok: true, id: data.id, slug: data.slug });
@@ -1474,6 +1526,9 @@ router.post("/uploads", requireAuth, requirePermission("files:upload"), async (r
     const { data: urlData } = storage.getPublicUrl(key);
     // PDFs are only handed out by the access-controlled proxy; images stay public.
     const url = isPdf ? `${PRIVATE_PREFIX}${key}` : urlData.publicUrl;
+
+    if (!pendingUploadRegistry.has(productId)) pendingUploadRegistry.set(productId, new Map());
+    pendingUploadRegistry.get(productId).set(slot, Date.now());
 
     res.status(201).json({
       ok: true,

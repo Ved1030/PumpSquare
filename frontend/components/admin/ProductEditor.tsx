@@ -407,7 +407,15 @@ export default function ProductEditor({
         return;
       }
 
-      setMessage({ type: "success", text: status === "published" ? "Product published." : "Draft saved." });
+      const published = status === "published" && (isNew || start.status !== "published");
+      setMessage({
+        type: "success",
+        text: published
+          ? "Product published."
+          : status === "published"
+            ? "Changes saved and published."
+            : "Draft saved.",
+      });
       router.push(`/admin/products/${id}/edit`);
       router.refresh();
     } catch (caught) {
