@@ -1,18 +1,17 @@
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+
+/** 320px pixel copy of app/icon1.png (60 × 61); the flat artwork is unchanged. */
+export const BRAND_LOGO = "/images/brand/pumpsquare-logo.png";
+export const BRAND_LOGO_SIZE = { width: 320, height: 320 };
 
 type LogoProps = {
   tone?: "light" | "dark";
   className?: string;
 };
 
-/**
- * Text-based Pumpsquare brand treatment.
- * The official LOGO.jpg supplied on the live site contains only the letters
- * "PUMP" on a padded square, so it cannot be used as a wordmark.
- * To swap in a proper official logo later, replace the inner markup with
- * next/image pointing at /images/your-logo.png — no other changes required.
- */
+/** Pumpsquare brand: the official PUMP mark beside the Pumpsquare / SYSTEMS LLP wordmark. */
 export default function Logo({ tone = "dark", className }: LogoProps) {
   const isDark = tone === "dark";
 
@@ -20,31 +19,20 @@ export default function Logo({ tone = "dark", className }: LogoProps) {
     <Link
       href="/"
       aria-label="Pumpsquare Systems LLP — Home"
-      className={cn("group flex items-center gap-3", className)}
+      className={cn("group flex min-w-0 items-center gap-3", className)}
     >
-      <span
-        aria-hidden="true"
-        className={cn(
-          "grid size-10 shrink-0 place-items-center rounded-md shadow-sm transition-transform group-hover:-translate-y-0.5",
-          isDark ? "bg-primary" : "bg-white/10 ring-1 ring-white/20",
-        )}
-      >
-        <svg viewBox="0 0 24 24" fill="none" className="size-6" aria-hidden="true">
-          <path
-            d="M12 3.5c2.2 2.7 5.5 6 5.5 9.4a5.5 5.5 0 1 1-11 0C6.5 9.5 9.8 6.2 12 3.5Z"
-            fill="#FFFFFF"
-            opacity="0.92"
-          />
-          <path
-            d="M12 9.2c1.1 1.4 2.6 3 2.6 4.8a2.6 2.6 0 1 1-5.2 0c0-1.8 1.5-3.4 2.6-4.8Z"
-            fill="#FFD100"
-          />
-        </svg>
-      </span>
-      <span className="flex flex-col leading-none">
+      <Image
+        src={BRAND_LOGO}
+        alt=""
+        width={BRAND_LOGO_SIZE.width}
+        height={BRAND_LOGO_SIZE.height}
+        priority
+        className="size-12 shrink-0 rounded-md border border-white/70 object-contain transition-transform group-hover:-translate-y-0.5 sm:size-14"
+      />
+      <span className="flex min-w-0 flex-col leading-none">
         <span
           className={cn(
-            "font-display text-xl font-extrabold tracking-tight",
+            "font-display text-[23px] font-extrabold leading-none tracking-tight",
             isDark ? "text-ink" : "text-white",
           )}
         >
@@ -52,8 +40,8 @@ export default function Logo({ tone = "dark", className }: LogoProps) {
         </span>
         <span
           className={cn(
-            "mt-1 text-[10px] font-semibold uppercase tracking-[0.22em]",
-            isDark ? "text-muted" : "text-silver",
+            "mt-1.5 text-[10px] font-semibold uppercase leading-none tracking-[0.22em]",
+            isDark ? "text-muted" : "text-white/80",
           )}
         >
           Systems LLP

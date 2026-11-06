@@ -28,7 +28,23 @@ import ReviewTabsEditor from "./ReviewTabsEditor";
 import PerformanceTableEditor from "./PerformanceTableEditor";
 import MaterialsTableEditor from "./MaterialsTableEditor";
 import ExplanationEditor from "./ExplanationEditor";
-import { normalizeTechnical, toPayload, type EditorTechnical } from "./editor-types";
+import { isTabLive, normalizeTechnical, toPayload, type EditorTechnical } from "./editor-types";
+
+/** Blocks saves that the technical tab editor could not have produced. */
+function technicalTabProblem(technical: EditorTechnical): string | null {
+  const names = new Map<string, string>();
+  for (const tab of technical.tabs) {
+    const name = tab.label.trim();
+    if (!name) return "Every technical tab needs a name.";
+    const key = name.toLowerCase();
+    if (names.has(key)) return `Two technical tabs are named “${name}”. Tab names must be unique.`;
+    names.set(key, name);
+    if (tab.enabled && !isTabLive(tab)) {
+      return `The “${name}” tab is set to show but has no content. Add a heading, bullet point or description, or untick “Show this tab on the website”.`;
+    }
+  }
+  return null;
+}
 
 type SpecRow = { key: string; value: string; unit: string };
 type Pair = { key: string; value: string };
@@ -328,7 +344,7 @@ export default function ProductEditor({
 
   function technicalSummary() {
     const payload = toPayload(technical);
-    const visibleTabs = payload.tabs.filter((tab) => tab.enabled && (tab.features.length || tab.intro.trim().replace(/<[^>]*>/g, "").trim())).length;
+    const visibleTabs = technical.tabs.filter(isTabLive).length;
     const bullets = payload.tabs.reduce((total, tab) => total + tab.features.length, 0);
     return { tabs: visibleTabs, bullets, columns: payload.performance.columns.length, rows: payload.performance.rows.length, materials: payload.materials.length, paragraphs: payload.paragraphs.length };
   }
@@ -348,6 +364,12 @@ export default function ProductEditor({
         setMessage({ type: "error", text: `Cannot publish yet. Add: ${missing.join(", ")}.` });
         return;
       }
+    }
+
+    const tabProblem = technicalTabProblem(technical);
+    if (tabProblem) {
+      setMessage({ type: "error", text: tabProblem });
+      return;
     }
 
     setSaving(status);
@@ -416,7 +438,9 @@ export default function ProductEditor({
             ? "Changes saved and published."
             : "Draft saved.",
       });
-      router.push(`/admin/products/${id}/edit`);
+      // The editor rehydrates from the saved product, so a newly created product
+      // switches to its edit route; an existing one reloads in place.
+      if (isNew) router.replace(`/admin/products/${id}/edit`);
       router.refresh();
     } catch (caught) {
       setMessage({ type: "error", text: caught instanceof Error ? caught.message : "Could not save the product." });

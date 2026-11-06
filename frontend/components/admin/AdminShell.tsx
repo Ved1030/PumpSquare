@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, Package, ShieldCheck, Tags, Users } from "lucide-react";
+import { LogOut, Package, Tags, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BRAND_LOGO, BRAND_LOGO_SIZE } from "@/components/layout/Logo";
 import { ROLE_LABELS, hasPermission, type AdminRole } from "@/lib/auth/roles";
 
 type AdminUser = { id: string; email: string; name: string; role: AdminRole };
@@ -34,9 +36,13 @@ export default function AdminShell({
     <div className="flex min-h-svh flex-col bg-slate-50 lg:flex-row">
       <aside className="flex shrink-0 flex-col bg-primary-deep text-white lg:w-64">
         <div className="flex items-center gap-3 px-5 py-5">
-          <span className="grid size-10 place-items-center rounded-lg bg-white/10">
-            <ShieldCheck aria-hidden="true" className="size-5 text-accent" />
-          </span>
+          <Image
+            src={BRAND_LOGO}
+            alt=""
+            width={BRAND_LOGO_SIZE.width}
+            height={BRAND_LOGO_SIZE.height}
+            className="size-10 shrink-0 rounded-lg"
+          />
           <div className="min-w-0">
             <p className="font-display text-base font-bold leading-tight">Pumpsquare</p>
             <p className="text-[10px] uppercase tracking-[0.22em] text-primary-soft">Admin Console</p>

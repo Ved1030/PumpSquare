@@ -2,11 +2,12 @@ import express from "express";
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env.js";
 import { getSupabaseAdmin, getSupabasePublic } from "../lib/supabase.js";
-import { hasProductMigration, hasCategoryColumns } from "../lib/product-schema.js";
+import { hasDynamicReviewTabs, hasProductMigration, hasCategoryColumns } from "../lib/product-schema.js";
 
 const router = express.Router();
 
 const REVIEW_TAB_KEYS = ["series", "operational", "installation", "advantages", "industry", "sector", "application", "measures"];
+const STANDARD_TAB_LABELS = ["Series", "Operational", "Installation", "Advantages", "Industry", "Sector", "Application", "Measures"];
 const PRIVATE_PREFIX = "private:";
 const STORAGE_BUCKET = "product-uploads";
 
@@ -26,8 +27,36 @@ function documentStoragePath(pathColumn, urlColumn) {
   return null;
 }
 
+// Canonical name of a standard tab; null for custom keys (never shown as a name).
+const standardLabel = (key) => {
+  const index = REVIEW_TAB_KEYS.indexOf(key);
+  return index === -1 ? null : STANDARD_TAB_LABELS[index];
+};
+
+// Tab rows from before the label column existed carry a custom tab's name in
+// its heading row attribute (written by the admin API). It is read back here and
+// never leaks into the heading text.
+const LEGACY_HEADING = /^<p data-tab-label="([^"]*)">([\s\S]*)<\/p>$/;
+const splitLegacyHeading = (heading) => {
+  const match = LEGACY_HEADING.exec(heading ?? "");
+  if (!match) return { label: "", heading };
+  return {
+    label: match[1].replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code))),
+    heading: match[2],
+  };
+};
+
 const emptyTechnical = () => ({
-  tabs: REVIEW_TAB_KEYS.map((key) => ({ key, enabled: true, heading: "", intro: "", features: [] })),
+  tabs: REVIEW_TAB_KEYS.map((key) => ({
+    key,
+    label: standardLabel(key),
+    isCustom: false,
+    sortOrder: REVIEW_TAB_KEYS.indexOf(key),
+    enabled: true,
+    heading: "",
+    intro: "",
+    features: [],
+  })),
   performance: { columns: [], rows: [] },
   materials: [],
   paragraphs: [],
@@ -41,9 +70,13 @@ const emptyTechnical = () => ({
 async function loadTechnical(productId) {
   const supabase = getSupabaseAdmin();
   const technical = emptyTechnical();
+  const dynamicTabs = await hasDynamicReviewTabs();
+  const tabColumns = dynamicTabs
+    ? "tab_key, label, is_custom, sort_order, enabled, heading, intro"
+    : "tab_key, enabled, heading, intro";
 
   const [tabs, features, columns, rows, materials, paragraphs] = await Promise.all([
-    supabase.from("product_review_tabs").select("tab_key, enabled, heading, intro").eq("product_id", productId),
+    supabase.from("product_review_tabs").select(tabColumns).eq("product_id", productId),
     supabase.from("product_review_features").select("tab_key, label, detail").eq("product_id", productId).order("sort_order"),
     supabase.from("product_performance_columns").select("id, name, unit").eq("product_id", productId).order("sort_order"),
     supabase.from("product_performance_rows").select("id").eq("product_id", productId).order("sort_order"),
@@ -56,12 +89,28 @@ async function loadTechnical(productId) {
     if (result.error && result.error.code !== "42P01") throw result.error;
   }
 
-  for (const tab of tabs.data ?? []) {
-    const target = technical.tabs.find((item) => item.key === tab.tab_key);
-    if (!target) continue;
-    target.enabled = tab.enabled;
-    target.heading = tab.heading ?? "";
-    target.intro = tab.intro ?? "";
+  if (tabs.data?.length) {
+    // The eight standard tabs first, then custom tabs, each group in saved order.
+    technical.tabs = tabs.data
+      .filter((tab) => tab.enabled)
+      .map((tab) => {
+        const standardIndex = REVIEW_TAB_KEYS.indexOf(tab.tab_key);
+        const legacy = standardIndex === -1 && tab.label === undefined ? splitLegacyHeading(tab.heading) : null;
+        // Labels are passed through exactly as stored; the key is only a
+        // fallback for standard tabs, never for custom ones.
+        return {
+          key: tab.tab_key,
+          label: tab.label ?? standardLabel(tab.tab_key) ?? legacy?.label ?? "",
+          isCustom: standardIndex === -1,
+          sortOrder: standardIndex === -1 ? (tab.sort_order ?? REVIEW_TAB_KEYS.length) : (tab.sort_order ?? standardIndex),
+          enabled: true,
+          heading: legacy?.heading ?? tab.heading ?? "",
+          intro: tab.intro ?? "",
+          features: [],
+        };
+      })
+      .sort((a, b) => Number(a.isCustom) - Number(b.isCustom) || a.sortOrder - b.sortOrder)
+      .map(({ isCustom, sortOrder, ...tab }) => tab);
   }
   for (const feature of features.data ?? []) {
     technical.tabs.find((tab) => tab.key === feature.tab_key)?.features.push({
@@ -69,6 +118,13 @@ async function loadTechnical(productId) {
       text: feature.detail,
     });
   }
+  // Tabs left empty (e.g. created but never filled in) must not break the page.
+  technical.tabs = technical.tabs.filter(
+    (tab) =>
+      tab.features.length > 0 ||
+      tab.heading.trim() ||
+      tab.intro.replace(/<[^>]*>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").trim(),
+  );
   technical.performance.columns = (columns.data ?? []).map((column) => ({ id: column.id, name: column.name, unit: column.unit ?? "" }));
 
   const rowIds = (rows.data ?? []).map((row) => row.id);

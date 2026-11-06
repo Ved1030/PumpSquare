@@ -47,6 +47,23 @@ export async function hasStoragePathColumns() {
   };
 }
 
+let reviewTabState = null;
+
+/**
+ * Dynamic tabs (label, is_custom, sort_order) arrive with the review tab
+ * migration. Until it runs, tabs are saved with the standard columns only.
+ */
+export async function hasDynamicReviewTabs() {
+  if (reviewTabState === null) {
+    const { error } = await getSupabaseAdmin().from("product_review_tabs").select("label, is_custom, sort_order").limit(1);
+    if (!error) reviewTabState = true;
+    else if (error.code === "42703" || error.code === "PGRST204") reviewTabState = false;
+    else if (error.code === "42P01") reviewTabState = false;
+    else throw error;
+  }
+  return reviewTabState;
+}
+
 let categoryState = null;
 
 /**

@@ -128,15 +128,45 @@ create policy "products_write_service_role" on products for all using (false);
 -- Tab copy is per product and per tab; the performance table, materials table
 -- and explanation paragraphs below belong to the product and are shared by
 -- every tab.
+--
+-- Tabs are dynamic: the eight standard tabs are seeded per product by the API
+-- (is_custom = false) and administrators can add custom tabs (is_custom = true).
+-- tab_key is stable per product and survives renames; label is the visible name
+-- stored exactly as the administrator typed it (never derived from tab_key).
 create table if not exists product_review_tabs (
   product_id uuid not null references products (id) on delete cascade,
-  tab_key text not null check (tab_key in ('series', 'operational', 'installation', 'advantages', 'industry', 'sector', 'application', 'measures')),
+  tab_key text not null,
   enabled boolean not null default true,
   heading text not null default '',
   intro text not null default '',
   updated_at timestamptz not null default now(),
   primary key (product_id, tab_key)
 );
+
+-- Earlier versions restricted tab_key to the eight standard keys.
+alter table product_review_tabs drop constraint if exists product_review_tabs_tab_key_check;
+
+alter table product_review_tabs add column if not exists label text not null default '';
+alter table product_review_tabs add column if not exists is_custom boolean not null default false;
+alter table product_review_tabs add column if not exists sort_order int not null default 0;
+
+-- Keep the standard order for pre-existing rows; custom tabs continue after.
+update product_review_tabs
+set sort_order = case tab_key
+  when 'series' then 0
+  when 'operational' then 1
+  when 'installation' then 2
+  when 'advantages' then 3
+  when 'industry' then 4
+  when 'sector' then 5
+  when 'application' then 6
+  when 'measures' then 7
+  else 8
+end
+where sort_order = 0
+  and tab_key in ('series', 'operational', 'installation', 'advantages', 'industry', 'sector', 'application', 'measures');
+
+create index if not exists product_review_tabs_product_order_idx on product_review_tabs (product_id, sort_order);
 
 create table if not exists product_review_features (
   id uuid primary key,
@@ -193,15 +223,25 @@ alter table product_performance_rows enable row level security;
 alter table product_performance_cells enable row level security;
 alter table product_materials enable row level security;
 
--- Readable only through the backend (service role) and only for published products.
+-- Public visitors may read visible tabs of published products; the backend
+-- (service role) reads and writes everything. Hidden tabs stay private.
 drop policy if exists "product_review_tabs_public_read" on product_review_tabs;
 create policy "product_review_tabs_public_read" on product_review_tabs for select using (
-  exists (select 1 from products p where p.id = product_id and p.status = 'published' and p.deleted_at is null)
+  enabled
+  and exists (select 1 from products p where p.id = product_id and p.status = 'published' and p.deleted_at is null)
 );
 
 drop policy if exists "product_review_features_public_read" on product_review_features;
 create policy "product_review_features_public_read" on product_review_features for select using (
-  exists (select 1 from products p where p.id = product_id and p.status = 'published' and p.deleted_at is null)
+  exists (
+    select 1 from product_review_tabs t
+    join products p on p.id = t.product_id
+    where t.product_id = product_review_features.product_id
+      and t.tab_key = product_review_features.tab_key
+      and t.enabled
+      and p.status = 'published'
+      and p.deleted_at is null
+  )
 );
 
 drop policy if exists "product_performance_columns_public_read" on product_performance_columns;

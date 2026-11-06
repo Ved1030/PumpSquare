@@ -55,7 +55,7 @@ export const productMenu = [
   {
     heading: "SEIM SRL Pumps",
     items: [
-      { label: "Pumps Series", href: "https://pumpsquare.com/seimsrlpumps.html" },
+      { label: "Pumps Series", href: "/products?category=seim-srl-pumps" },
     ],
   },
 ] as const;

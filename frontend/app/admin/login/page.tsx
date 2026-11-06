@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
+import Image from "next/image";
 import { getSessionUser } from "@/lib/auth/session";
+import { BRAND_LOGO, BRAND_LOGO_SIZE } from "@/components/layout/Logo";
 import LoginForm from "@/components/admin/LoginForm";
 
 export const metadata: Metadata = {
@@ -20,9 +21,13 @@ export default async function AdminLoginPage() {
     <div className="flex min-h-svh flex-col bg-primary-deep px-4 py-12">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
         <div className="mb-8 flex items-center gap-3 text-white">
-          <span className="grid size-11 place-items-center rounded-lg bg-white/10">
-            <ShieldCheck aria-hidden="true" className="size-6 text-accent" />
-          </span>
+          <Image
+            src={BRAND_LOGO}
+            alt=""
+            width={BRAND_LOGO_SIZE.width}
+            height={BRAND_LOGO_SIZE.height}
+            className="size-11 shrink-0 rounded-lg"
+          />
           <div>
             <p className="font-display text-lg font-bold leading-tight">Pumpsquare</p>
             <p className="text-xs uppercase tracking-[0.22em] text-primary-soft">

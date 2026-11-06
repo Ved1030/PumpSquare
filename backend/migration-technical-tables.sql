@@ -23,6 +23,36 @@ CREATE TABLE IF NOT EXISTS public.product_review_tabs (
 CREATE INDEX IF NOT EXISTS idx_product_review_tabs_product_id
     ON public.product_review_tabs(product_id);
 
+-- Dynamic tabs: standard tabs (is_custom = false) plus administrator-created
+-- tabs (is_custom = true). tab_key is stable per product and survives renames;
+-- label is the displayed name. Widening an existing install keeps all rows.
+ALTER TABLE public.product_review_tabs DROP CONSTRAINT IF EXISTS product_review_tabs_tab_key_check;
+ALTER TABLE public.product_review_tabs ADD COLUMN IF NOT EXISTS label TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.product_review_tabs ADD COLUMN IF NOT EXISTS is_custom BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE public.product_review_tabs ADD COLUMN IF NOT EXISTS sort_order INT NOT NULL DEFAULT 0;
+
+UPDATE public.product_review_tabs
+SET sort_order = CASE tab_key
+    WHEN 'series' THEN 0
+    WHEN 'operational' THEN 1
+    WHEN 'installation' THEN 2
+    WHEN 'advantages' THEN 3
+    WHEN 'industry' THEN 4
+    WHEN 'sector' THEN 5
+    WHEN 'application' THEN 6
+    WHEN 'measures' THEN 7
+    ELSE 8
+END
+WHERE sort_order = 0
+  AND tab_key IN ('series', 'operational', 'installation', 'advantages', 'industry', 'sector', 'application', 'measures');
+
+-- Custom tabs saved before the label column existed keep an empty label; their
+-- key is a lowercased slug, so the admin names them rather than the website
+-- showing an inferred name. label stores the admin's text exactly as typed.
+
+CREATE INDEX IF NOT EXISTS idx_product_review_tabs_product_order
+    ON public.product_review_tabs(product_id, sort_order);
+
 -- ============================================================================
 -- 2. PRODUCT_REVIEW_FEATURES
 -- Stores feature bullet points for each review tab

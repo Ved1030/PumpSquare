@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env.js";
 import { getSupabaseAdmin } from "../lib/supabase.js";
-import { hasCategoryColumns, hasProductMigration, hasStoragePathColumns } from "../lib/product-schema.js";
+import { hasCategoryColumns, hasDynamicReviewTabs, hasProductMigration, hasStoragePathColumns } from "../lib/product-schema.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
@@ -259,8 +259,12 @@ function mapPairEntries(record = {}) {
  */
 async function loadTechnical(supabase, productId) {
   const empty = emptyTechnical();
+  const dynamicTabs = await hasDynamicReviewTabs();
+  const tabColumns = dynamicTabs
+    ? "tab_key, label, is_custom, sort_order, enabled, heading, intro"
+    : "tab_key, enabled, heading, intro";
   const [tabs, features, columns, rows, materials, paragraphs] = await Promise.all([
-    supabase.from("product_review_tabs").select("tab_key, enabled, heading, intro").eq("product_id", productId),
+    supabase.from("product_review_tabs").select(tabColumns).eq("product_id", productId),
     supabase
       .from("product_review_features")
       .select("id, tab_key, label, detail, sort_order")
@@ -302,13 +306,7 @@ async function loadTechnical(supabase, productId) {
   }
 
   const technical = empty;
-  for (const tab of tabs.data ?? []) {
-    const target = technical.tabs.find((item) => item.key === tab.tab_key);
-    if (!target) continue;
-    target.enabled = tab.enabled;
-    target.heading = tab.heading ?? "";
-    target.intro = tab.intro ?? "";
-  }
+  if (tabs.data?.length) technical.tabs = toTechnicalTabs(tabs.data);
   for (const feature of features.data ?? []) {
     const target = technical.tabs.find((item) => item.key === feature.tab_key);
     if (!target) continue;
@@ -342,6 +340,7 @@ async function replaceTechnical(supabase, productId, input) {
   // Keep ids stable so the editor round-trips unchanged data without churn.
   const ids = (value) => (z.string().uuid().safeParse(value).success ? value : randomUUID());
   const tabKeys = new Set(technical.tabs.map((tab) => tab.key));
+  const dynamicTabs = await hasDynamicReviewTabs();
 
   // Check if technical tables exist
   const { error: tablesExistError } = await supabase
@@ -353,6 +352,12 @@ async function replaceTechnical(supabase, productId, input) {
     // Technical tables don't exist (migration not run), skip technical content handling
     return;
   }
+
+  const { data: tabs, error: tabsError } = await supabase
+    .from("product_review_tabs")
+    .select(dynamicTabs ? "tab_key, label" : "tab_key")
+    .eq("product_id", productId);
+  if (tabsError) throw tabsError;
 
   for (const table of [
     "product_review_features",
@@ -380,14 +385,29 @@ async function replaceTechnical(supabase, productId, input) {
     if (error && error.code !== "42P01") throw error;
   }
 
-  const tabRows = technical.tabs.map((tab) => ({
-    product_id: productId,
-    tab_key: tab.key,
-    enabled: tab.enabled,
-    heading: tab.heading,
-    intro: tab.intro,
-    updated_at: new Date().toISOString(),
-  }));
+  // Array order is the saved display order. Labels are stored verbatim (only
+  // surrounding whitespace was trimmed by the schema). Each save rewrites every
+  // tab, so a name the client did not send (an unnamed legacy tab) keeps the
+  // one already stored instead of being cleared; a custom tab never falls back
+  // to its key, which is a lowercased identifier rather than a name.
+  const storedLabels = new Map(
+    (tabs.data ?? []).map((tab) => [tab.tab_key, dynamicTabs ? (tab.label ?? "") : splitLegacyHeading(tab.heading).label]),
+  );
+  const tabRows = technical.tabs.map((tab, index) => {
+    const standard = REVIEW_TAB_KEYS.includes(tab.key);
+    const fallback = tab.label || (dynamicTabs ? storedLabels.get(tab.key) ?? "" : defaultTabLabel(tab.key));
+    return {
+      product_id: productId,
+      tab_key: tab.key,
+      enabled: tab.enabled,
+      // Without the label column the editor's schema validator cannot allow the
+      // marker, so the name is attached here rather than in the client payload.
+      heading: dynamicTabs || standard ? tab.heading : headingWithLabel(tab.heading, fallback),
+      intro: tab.intro,
+      updated_at: new Date().toISOString(),
+      ...(dynamicTabs ? { label: standard ? fallback || defaultTabLabel(tab.key) : fallback, is_custom: !standard, sort_order: index } : {}),
+    };
+  });
   if (tabRows.length) {
     const { error } = await supabase.from("product_review_tabs").insert(tabRows);
     if (error) throw error;
@@ -524,6 +544,8 @@ function toAdminProduct(row, technical) {
   };
 }
 
+// The eight standard tabs every product starts with (display names live in the
+// frontend's REVIEW_TABS); administrators can add custom tabs after these.
 const REVIEW_TAB_KEYS = [
   "series",
   "operational",
@@ -534,6 +556,58 @@ const REVIEW_TAB_KEYS = [
   "application",
   "measures",
 ];
+const STANDARD_TAB_LABELS = {
+  series: "Series",
+  operational: "Operational",
+  installation: "Installation",
+  advantages: "Advantages",
+  industry: "Industry",
+  sector: "Sector",
+  application: "Application",
+  measures: "Measures",
+};
+// Generous ceiling; prevents accidentally enormous technical payloads.
+const MAX_REVIEW_TABS = 40;
+const TAB_KEY_PATTERN = /^(?:[a-z0-9]+(?:-[a-z0-9]+)*|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/;
+
+function defaultTabLabel(key) {
+  return STANDARD_TAB_LABELS[key] ?? key;
+}
+
+// Until the dynamic-tab migration adds product_review_tabs.label, a custom
+// tab's name is carried in its heading row attribute. The heading text itself
+// is unchanged: the marker is stripped before the heading reaches any page.
+const LEGACY_LABEL_ATTRIBUTE = "data-tab-label";
+const LEGACY_HEADING = new RegExp(`^<p ${LEGACY_LABEL_ATTRIBUTE}="([^"]*)">([\\s\\S]*)<\\/p>$`);
+// Characters that would end or confuse the attribute; all are entity-escaped.
+const LEGACY_LABEL_UNSAFE = /["<>&]/g;
+
+function headingWithLabel(heading, label) {
+  const escaped = (label ?? "").replace(LEGACY_LABEL_UNSAFE, (char) => `&#${char.charCodeAt(0)};`);
+  return `<p ${LEGACY_LABEL_ATTRIBUTE}="${escaped}">${heading}</p>`;
+}
+
+/** Splits a stored legacy heading into its carried tab name and its text. */
+function splitLegacyHeading(heading) {
+  const match = LEGACY_HEADING.exec(heading ?? "");
+  if (!match) return { label: "", heading };
+  const label = match[1].replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
+  return { label, heading: match[2] };
+}
+
+// Text left once markup (and entities such as &nbsp;) is removed; blank rich
+// text does not count as tab content.
+function plainText(html) {
+  return (html ?? "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function tabHasContent(tab) {
+  return tab.features.length > 0 || plainText(tab.intro).length > 0 || Boolean(tab.heading?.trim());
+}
 
 // Rich text is stored as sanitised HTML built from these tags only (see the
 // admin editor). An allowlist here keeps stored markup safe regardless of client.
@@ -570,7 +644,8 @@ const featureSchema = z.object({
 });
 
 const reviewTabSchema = z.object({
-  key: z.enum(REVIEW_TAB_KEYS),
+  key: z.string().min(1).max(80).regex(TAB_KEY_PATTERN, "Invalid tab identifier"),
+  label: z.string().trim().max(60).optional(),
   enabled: z.boolean(),
   heading: z.string().trim().max(120),
   intro: richTextSchema,
@@ -608,20 +683,84 @@ const materialsSchema = z
   )
   .max(60);
 
-const technicalSchema = z.object({
-  tabs: z.array(reviewTabSchema).max(REVIEW_TAB_KEYS.length),
-  performance: performanceSchema,
-  materials: materialsSchema,
-  paragraphs: z.array(z.object({ id: z.string().min(1).max(64), html: richTextSchema })).max(60),
-});
+const technicalSchema = z
+  .object({
+    tabs: z.array(reviewTabSchema).min(REVIEW_TAB_KEYS.length).max(MAX_REVIEW_TABS),
+    performance: performanceSchema,
+    materials: materialsSchema,
+    paragraphs: z.array(z.object({ id: z.string().min(1).max(64), html: richTextSchema })).max(60),
+  })
+  .superRefine((value, ctx) => {
+    const keys = new Set();
+    const labels = new Set();
+    value.tabs.forEach((tab, index) => {
+      const at = { path: ["tabs", index] };
+      if (keys.has(tab.key)) {
+        ctx.addIssue({ code: "custom", message: `Duplicate tab identifier "${tab.key}"`, ...at });
+        return;
+      }
+      keys.add(tab.key);
+      const label = (tab.label || defaultTabLabel(tab.key)).toLowerCase();
+      if (labels.has(label)) {
+        ctx.addIssue({ code: "custom", message: `Duplicate tab name "${tab.label || defaultTabLabel(tab.key)}"`, ...at });
+        return;
+      }
+      // A custom tab may be created empty and filled later, but every tab that
+      // reaches the website must carry its own visible name.
+      if (!REVIEW_TAB_KEYS.includes(tab.key) && !(tab.label ?? "").trim()) {
+        ctx.addIssue({ code: "custom", message: "Custom tabs need a name", ...at });
+      }
+      if (tab.enabled && !tabHasContent(tab)) {
+        ctx.addIssue({ code: "custom", message: `Tab "${tab.label || defaultTabLabel(tab.key)}" has no content yet; add content or hide it`, ...at });
+      }
+    });
+  });
 
 function emptyTechnical() {
   return {
-    tabs: REVIEW_TAB_KEYS.map((key) => ({ key, enabled: true, heading: "", intro: "", features: [] })),
+    tabs: REVIEW_TAB_KEYS.map((key) => ({ key, label: defaultTabLabel(key), enabled: true, heading: "", intro: "", features: [] })),
     performance: { columns: [], rows: [] },
     materials: [],
     paragraphs: [],
   };
+}
+
+/**
+ * Builds the tab list returned to the editor: the eight standard tabs first,
+ * then custom tabs, all in the saved order. Rows saved before dynamic tabs
+ * existed carry no label/order, so those fall back to the standard layout.
+ *
+ * `label` is returned exactly as stored. Custom tabs without a stored name
+ * come back with an empty label instead of their identifier, so the editor
+ * asks for a name rather than showing a lowercased key.
+ */
+function toTechnicalTabs(tabRows) {
+  return tabRows
+    .map((row) => {
+      const standardIndex = REVIEW_TAB_KEYS.indexOf(row.tab_key);
+      const custom = !row.is_custom && standardIndex !== -1 ? false : true;
+      return {
+        key: row.tab_key,
+        label: custom ? (row.label ?? "") : row.label || defaultTabLabel(row.tab_key),
+        isCustom: custom,
+        sortOrder: custom ? (row.sort_order ?? REVIEW_TAB_KEYS.length) : (row.sort_order ?? standardIndex),
+        enabled: row.enabled,
+        heading: row.heading ?? "",
+        intro: row.intro ?? "",
+        features: [],
+        // Rows from before the label column keep the custom tab's name in its
+        // heading; report the plain heading so the editor gets the real text.
+        ...(row.is_custom === undefined && custom
+          ? (() => {
+              const legacy = splitLegacyHeading(row.heading);
+              return legacy.label
+                ? { label: row.label || legacy.label, heading: legacy.heading }
+                : {};
+            })()
+          : {}),
+      };
+    })
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.label.localeCompare(b.label));
 }
 
 const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).min(2).max(80);

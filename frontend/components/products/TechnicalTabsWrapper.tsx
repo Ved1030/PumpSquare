@@ -31,9 +31,11 @@ interface TechnicalTabsWrapperProps {
 }
 
 export default function TechnicalTabsWrapper({ technical }: TechnicalTabsWrapperProps) {
+  // Remount on product change so the active tab and autoplay timer reset.
+  const productKey = technical?.tabs?.map((tab) => tab.key).join("|") ?? "";
   return (
     <Suspense fallback={<TechnicalTabsSkeleton />}>
-      <TechnicalTabs technical={technical} />
+      <TechnicalTabs key={productKey} technical={technical} />
     </Suspense>
   );
 }

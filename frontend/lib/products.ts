@@ -14,7 +14,14 @@ export type ReviewTabKey = (typeof REVIEW_TABS)[number]["key"];
 export type ReviewFeature = { label?: string; text: string };
 
 export type ReviewTab = {
-  key: ReviewTabKey;
+  /** Stable identifier; survives renames. Standard keys come from REVIEW_TABS. */
+  key: string;
+  /** Displayed tab name. */
+  label?: string;
+  /** True for administrator-created tabs (false/absent for the eight standard tabs). */
+  isCustom?: boolean;
+  /** Saved display position; the array order is authoritative when saving. */
+  sortOrder?: number;
   enabled: boolean;
   heading: string;
   /** Sanitised HTML: paragraphs, bold, italic and basic lists. */
